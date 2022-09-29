@@ -1,0 +1,101 @@
+import java.util.Scanner;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Arrays;
+
+public class adventure {
+    String q, aiq; // Question, AfterIncorrectQuestion
+    Boolean qii, ifq; // qIsInt
+    String[] c, pac, b; // Choices, PositionAfterChoice, Benifits
+
+    // Setup New Story Data
+    public void setup(String Question, Boolean qIsInt, Boolean isFinalQuestion, String AfterIncorrectQuestion, String[] Choices, String[] PositionAfterChoice, String[] Benifits) {
+        // Question: Question to be printed to console asking player
+        // qIsNum: Is the question an interger
+        // isFinalQuestion: Is the question a final one? Basically it will end the game when achieved
+        // AfterIncorrectQuestion: When user doesn't choose an answer within choices
+        // will give you this question instead, to make the question more direct
+        // Choices: Possible choices; If an int then give lower bound and upper bound as a string
+        // PositionAfterChoice: Depending on choice, where to take the user next
+        // Benifits: User Recieves; Can be declared as 'null' if none
+
+        q = Question;
+        qii = qIsInt;
+        ifq = isFinalQuestion;
+        aiq = AfterIncorrectQuestion;
+        c = Choices;
+        pac = PositionAfterChoice;
+        b = Benifits;
+    }
+
+    static Boolean isint(String value) {
+        boolean isInt = value.chars().allMatch(Character::isDigit);
+        return isInt;
+    }
+
+    static Object askQuestion(String Question, Boolean qIsInt, String AfterIncorrectQuestion, String[] Choices) {
+        Scanner keyboard = new Scanner(System.in);
+
+        System.out.print(Question);
+        String choice = keyboard.nextLine();
+        List choicesList = Arrays.asList(Choices);
+        Boolean successful = false;
+        if (qIsInt) {
+            while (!successful) {
+                if (!isint(choice)) {
+                    System.out.print("Invalid input, I need a positive integer! ");
+                    successful = false;
+                } else {
+                    if (Integer.parseInt(choice) >= Integer.parseInt(Choices[0]) && Integer.parseInt(choice) <= Integer.parseInt(Choices[1])) {
+                        successful = true;
+                    } else {
+                        System.out.print(AfterIncorrectQuestion);
+                        successful = false;
+                    }
+                }
+                if (!successful) {
+                    choice = keyboard.nextLine();
+                }
+            }
+         } else {
+            while (!choicesList.contains(choice)) {
+                System.out.print(AfterIncorrectQuestion);
+                choice = keyboard.nextLine();
+            }
+         }
+
+        return choice;
+    }
+
+    public static void main(String[] args) {
+        HashMap<String, adventure> storyData = new HashMap<String, adventure>();
+
+        //Boolean gameRunning = true;
+        adventure test = new adventure();
+        test.setup("Give me a number between 1-10: ", true, false, "NO! A number bewtween 1 and 10: ", new String[] {"1", "10"}, new String[] {"Ee"}, new String[] {"Ee"});
+        storyData.put("Cool", test);
+
+        //System.out.println(storyData.get("Cool").q);
+        System.out.println(askQuestion(test.q, test.qii, test.aiq, test.c));
+
+        /*
+         * adventure test = new adventure();
+         * 
+         * test.setup("Dumb", false, "EEE", new String[] {"Ee"}, new String[] {"Ee"},
+         * new String[] {"Ee"});
+         * 
+         * System.out.println(test.b);
+         */
+
+        // Add keys and values (Country, City)
+        // Converting value to string[] Arrays.toString(value)
+
+        // capitalCities.put("England", new String[] {"fda", "cool"});
+
+        // System.out.println(Arrays.toString(capitalCities.get("England")));
+
+        // Complier; New Object Seperated by '~'; New Question Seperated by '`': 
+        String story = "Give me a number between 1-10: ~true~false~NO! A number bewtween 1 and 10: ";
+        System.out.println(story);
+    }
+}
