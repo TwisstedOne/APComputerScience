@@ -3,7 +3,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Arrays;
 
-public class adventure {
+public class Adventure {
     String q, aiq; // Question, AfterIncorrectQuestion
     Boolean qii, ifq; // qIsInt
     String[] c, pac, b; // Choices, PositionAfterChoice, Benifits
@@ -67,19 +67,33 @@ public class adventure {
         return choice;
     }
 
+    static Object compileStory(String story) {
+        HashMap<String, Adventure> storyData = new HashMap<String, Adventure>();
+        System.
+        String[] questions = story.split("`");
+
+        for (int question = 0; question < questions.length; question++) {
+            String[] instances = questions[question].split("~");
+            for (int instance = 0; instance < instances.length; instance++) {
+                System.out.println(instances[instance]);
+            }
+        }
+        return questions;
+    }
+
     public static void main(String[] args) {
-        HashMap<String, adventure> storyData = new HashMap<String, adventure>();
+        
 
         //Boolean gameRunning = true;
-        adventure test = new adventure();
-        test.setup("Give me a number between 1-10: ", true, false, "NO! A number bewtween 1 and 10: ", new String[] {"1", "10"}, new String[] {"Ee"}, new String[] {"Ee"});
-        storyData.put("Cool", test);
+        //Adventure test = new Adventure();
+        //test.setup("Give me a number between 1-10: ", true, false, "NO! A number bewtween 1 and 10: ", new String[] {"1", "10"}, new String[] {"Ee"}, new String[] {"Ee"});
+        //storyData.put("Cool", test);
 
         //System.out.println(storyData.get("Cool").q);
-        System.out.println(askQuestion(test.q, test.qii, test.aiq, test.c));
+        //System.out.println(askQuestion(test.q, test.qii, test.aiq, test.c));
 
         /*
-         * adventure test = new adventure();
+         * Adventure test = new Adventure();
          * 
          * test.setup("Dumb", false, "EEE", new String[] {"Ee"}, new String[] {"Ee"},
          * new String[] {"Ee"});
@@ -94,8 +108,8 @@ public class adventure {
 
         // System.out.println(Arrays.toString(capitalCities.get("England")));
 
-        // Complier; New Object Seperated by '~'; New Question Seperated by '`': 
-        String story = "Give me a number between 1-10: ~true~false~NO! A number bewtween 1 and 10: ";
-        System.out.println(story);
+        // Complier; New Object Seperated by '~'; New Question Seperated by '`', Choices Are Created Using |: 
+        String story = "Give me a number between 1-10: ~true~false~NO! A number bewtween 1 and 10: ~|1, 10~|e~|e";
+        compileStory(story);
     }
 }
