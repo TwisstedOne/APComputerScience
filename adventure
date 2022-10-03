@@ -72,7 +72,7 @@ public class cyoa {
 
     public static void main(String[] args) {
         // Compiler; New Object Seperated by '~'; New Question Seperated by '`', Choices Are Created Using ,: 
-        // Name~Question: ~Question Is Interger~Question Is A Final Question~Question After Incorrect Input: ~Number Range/Choices~Position After Choice In Order Of Choices~Benifit After Question, showStuffIndex or 100 
+        // Name~Question: ~Question Is Interger~Question Is A Final Question~Question After Incorrect Input: ~Number Range/Choices~Position After Choice In Order Of Choices~Benifit After Question~PositiveOrNegativeBenifit (true/false)~showStuffIndex or 100 
         // Benifits Are Written BenifitName, Value (ONLY ONE), Write Index In Benifits, Addition
         String story = "starting~Give me a number between 1-10: ~true~true~NO! A number between 1 and 10: ~1,10~nil~0,0~1`";
         
