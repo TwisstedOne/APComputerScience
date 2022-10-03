@@ -4,12 +4,13 @@ import java.util.List;
 import java.util.Arrays;
 
 public class cyoa {
-    String q, aiq; // Question, AfterIncorrectQuestion
-    Boolean qii, ifq; // qIsInt
-    String[] c, pac, b; // Choices, PositionAfterChoice, Benifits
+    String q, aiq, pac; // Question, AfterIncorrectQuestion, PositionAfterChoice
+    Boolean qii, ifq; // qIsInt, isFinalQuestion, printStuff
+    String[] c, b; // Choices, Benifits
+    int ps; // printStuff
 
     // Setup New Story Data
-    public void setup(String Question, Boolean qIsInt, Boolean isFinalQuestion, String AfterIncorrectQuestion, String[] Choices, String[] PositionAfterChoice, String[] Benifits) {
+    public void setup(String Question, Boolean qIsInt, Boolean isFinalQuestion, String AfterIncorrectQuestion, String[] Choices, String PositionAfterChoice, String[] Benifits, int printStuff) {
         // Question: Question to be printed to console asking player
         // qIsNum: Is the question an interger
         // isFinalQuestion: Is the question a final one? Basically it will end the game when achieved
@@ -26,6 +27,7 @@ public class cyoa {
         c = Choices;
         pac = PositionAfterChoice;
         b = Benifits;
+        ps = printStuff;
     }
 
     static Boolean isint(String value) { // If all characters in string are digits then return true else false
@@ -70,13 +72,14 @@ public class cyoa {
 
     public static void main(String[] args) {
         // Compiler; New Object Seperated by '~'; New Question Seperated by '`', Choices Are Created Using ,: 
-        // Name~Question: ~Question Is Interger~Question Is A Final Question~Question After Incorrect Input: ~Number Range/Choices~Position After Choice In Order Of Choices~Benifit After Question 
+        // Name~Question: ~Question Is Interger~Question Is A Final Question~Question After Incorrect Input: ~Number Range/Choices~Position After Choice In Order Of Choices~Benifit After Question, showStuffIndex or 100 
         // Benifits Are Written BenifitName, Value (ONLY ONE), Write Index In Benifits, Addition
-        String story = "Starting~Give me a number between 1-10: ~true~true~NO! A number between 1 and 10: ~1,10~true~1, 0";
+        String story = "starting~Give me a number between 1-10: ~true~true~NO! A number between 1 and 10: ~1,10~nil~0,0~1`";
         
         // Write Benifits Here (ONLY INTERGERS)
-        // Nonben
-        int[] benifits = {0};
+        // Nonben, Wood
+        int[] benifits = {0, 0};
+        String[] benifitsAsNames = {"Nonben", "wood"};
 
         // Compile Story:
         HashMap<String, cyoa> storyData = new HashMap<String, cyoa>();
@@ -90,23 +93,32 @@ public class cyoa {
             Boolean isFinalQuestion = Boolean.parseBoolean(i[3]);
             String AfterIncorrectQuestion = i[4];
             String[] Choices = i[5].split(",");
-            String[] PositionAfterChoice = i[6].split(",");
+            String PositionAfterChoice = i[6];
             String[] Benifits = i[7].split(",");
+            int printStuff = Integer.parseInt(i[8]);
             
-            newQuestion.setup(Question, qIsInt, isFinalQuestion, AfterIncorrectQuestion, Choices, PositionAfterChoice, Benifits);
+            newQuestion.setup(Question, qIsInt, isFinalQuestion, AfterIncorrectQuestion, Choices, PositionAfterChoice, Benifits, printStuff);
+            System.out.println(Name);
             storyData.put(Name, newQuestion);
         }
 
         // Run Story
         Boolean isRunning = true;
-        Object currentQuestion = "Starting";
+        Object currentQuestion = "starting";
         while (isRunning) {
-            System.out.println(isRunning);
+            if (storyData.get(currentQuestion).ps != 100) {
+                System.out.println("You have " + benifits[storyData.get(currentQuestion).ps] + " " + benifitsAsNames[storyData.get(currentQuestion).ps] + "!");
+            }
             Object choice = askQuestion(storyData.get(currentQuestion).q, storyData.get(currentQuestion).qii, storyData.get(currentQuestion).aiq, storyData.get(currentQuestion).c);
             if (storyData.get(currentQuestion).ifq) {
                 isRunning = false;
             } else {
-                currentQuestion = choice;
+                benifits[Integer.parseInt(storyData.get(currentQuestion).b[0])] += Integer.parseInt(storyData.get(currentQuestion).b[1]);
+                if (storyData.get(currentQuestion).qii) {
+                    currentQuestion = storyData.get(currentQuestion).pac;
+                } else {
+                    currentQuestion = choice;
+                }
             }
         }  
     }
