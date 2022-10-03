@@ -3,7 +3,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Arrays;
 
-public class Adventure {
+public class cyoa {
     String q, aiq; // Question, AfterIncorrectQuestion
     Boolean qii, ifq; // qIsInt
     String[] c, pac, b; // Choices, PositionAfterChoice, Benifits
@@ -28,8 +28,8 @@ public class Adventure {
         b = Benifits;
     }
 
-    static Boolean isint(String value) {
-        boolean isInt = value.chars().allMatch(Character::isDigit);
+    static Boolean isint(String value) { // If all characters in string are digits then return true else false
+        boolean isInt = value.chars().allMatch(Character::isDigit); 
         return isInt;
     }
 
@@ -38,15 +38,15 @@ public class Adventure {
 
         System.out.print(Question);
         String choice = keyboard.nextLine();
-        List choicesList = Arrays.asList(Choices);
+        List choicesList = Arrays.asList(Choices); // Convert Choices To List
         Boolean successful = false;
-        if (qIsInt) {
+        if (qIsInt) { // If question is asking for an interger
             while (!successful) {
-                if (!isint(choice)) {
+                if (!isint(choice)) { // Make sure it is an interger
                     System.out.print("Invalid input, I need a positive integer! ");
                     successful = false;
                 } else {
-                    if (Integer.parseInt(choice) >= Integer.parseInt(Choices[0]) && Integer.parseInt(choice) <= Integer.parseInt(Choices[1])) {
+                    if (Integer.parseInt(choice) >= Integer.parseInt(Choices[0]) && Integer.parseInt(choice) <= Integer.parseInt(Choices[1])) { // Converts String to int then checks if in range
                         successful = true;
                     } else {
                         System.out.print(AfterIncorrectQuestion);
@@ -57,59 +57,57 @@ public class Adventure {
                     choice = keyboard.nextLine();
                 }
             }
-         } else {
-            while (!choicesList.contains(choice)) {
+         } else { // If question is asking for string
+            while (!choicesList.contains(choice)) { // If the given choice is in the available choices
                 System.out.print(AfterIncorrectQuestion);
                 choice = keyboard.nextLine();
             }
          }
 
+        //keyboard.close(); // Prevent Error Line
         return choice;
     }
 
-    static Object compileStory(String story) {
-        HashMap<String, Adventure> storyData = new HashMap<String, Adventure>();
-        System.
-        String[] questions = story.split("`");
-
-        for (int question = 0; question < questions.length; question++) {
-            String[] instances = questions[question].split("~");
-            for (int instance = 0; instance < instances.length; instance++) {
-                System.out.println(instances[instance]);
-            }
-        }
-        return questions;
-    }
-
     public static void main(String[] args) {
+        // Compiler; New Object Seperated by '~'; New Question Seperated by '`', Choices Are Created Using ,: 
+        // Name~Question: ~Question Is Interger~Question Is A Final Question~Question After Incorrect Input: ~Number Range/Choices~Position After Choice In Order Of Choices~Benifit After Question 
+        // Benifits Are Written BenifitName, Value (ONLY ONE), Write Index In Benifits, Addition
+        String story = "Starting~Give me a number between 1-10: ~true~true~NO! A number between 1 and 10: ~1,10~true~1, 0";
         
+        // Write Benifits Here (ONLY INTERGERS)
+        // Nonben
+        int[] benifits = {0};
 
-        //Boolean gameRunning = true;
-        //Adventure test = new Adventure();
-        //test.setup("Give me a number between 1-10: ", true, false, "NO! A number bewtween 1 and 10: ", new String[] {"1", "10"}, new String[] {"Ee"}, new String[] {"Ee"});
-        //storyData.put("Cool", test);
+        // Compile Story:
+        HashMap<String, cyoa> storyData = new HashMap<String, cyoa>();
+        String[] questions = story.split("`");
+        for (int question = 0; question < questions.length; question++) {
+            String[] i = questions[question].split("~");
+            cyoa newQuestion = new cyoa();
+            String Name = i[0];
+            String Question = i[1];
+            Boolean qIsInt = Boolean.parseBoolean(i[2]);
+            Boolean isFinalQuestion = Boolean.parseBoolean(i[3]);
+            String AfterIncorrectQuestion = i[4];
+            String[] Choices = i[5].split(",");
+            String[] PositionAfterChoice = i[6].split(",");
+            String[] Benifits = i[7].split(",");
+            
+            newQuestion.setup(Question, qIsInt, isFinalQuestion, AfterIncorrectQuestion, Choices, PositionAfterChoice, Benifits);
+            storyData.put(Name, newQuestion);
+        }
 
-        //System.out.println(storyData.get("Cool").q);
-        //System.out.println(askQuestion(test.q, test.qii, test.aiq, test.c));
-
-        /*
-         * Adventure test = new Adventure();
-         * 
-         * test.setup("Dumb", false, "EEE", new String[] {"Ee"}, new String[] {"Ee"},
-         * new String[] {"Ee"});
-         * 
-         * System.out.println(test.b);
-         */
-
-        // Add keys and values (Country, City)
-        // Converting value to string[] Arrays.toString(value)
-
-        // capitalCities.put("England", new String[] {"fda", "cool"});
-
-        // System.out.println(Arrays.toString(capitalCities.get("England")));
-
-        // Complier; New Object Seperated by '~'; New Question Seperated by '`', Choices Are Created Using |: 
-        String story = "Give me a number between 1-10: ~true~false~NO! A number bewtween 1 and 10: ~|1, 10~|e~|e";
-        compileStory(story);
+        // Run Story
+        Boolean isRunning = true;
+        Object currentQuestion = "Starting";
+        while (isRunning) {
+            System.out.println(isRunning);
+            Object choice = askQuestion(storyData.get(currentQuestion).q, storyData.get(currentQuestion).qii, storyData.get(currentQuestion).aiq, storyData.get(currentQuestion).c);
+            if (storyData.get(currentQuestion).ifq) {
+                isRunning = false;
+            } else {
+                currentQuestion = choice;
+            }
+        }  
     }
 }
