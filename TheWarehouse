@@ -90,7 +90,7 @@ public class TheWarehouse {
             }
         }
 
-        choice = keyboard.nextLine().toLowerCase();
+        String choice = keyboard.nextLine().toLowerCase();
         List choicesList = Arrays.asList(choices); // Convert Choices To List
         if (!choicesList.contains(choice)) { // If the given choice is in the available choices
             System.out.println("");
@@ -201,7 +201,7 @@ public class TheWarehouse {
     static void turn1() {
         int givenChoice = printQuestionWithChoices("You turn your ankle and dart forward, tripping on the curb, spraining your ankle in the process. You look up at the bus and see that the bus driver was a hooded figure, different from who you saw before. You limp across the street, careful of the cars and enter the front offices of the warehouse. The boss tells you your late and gives you your job, you enter the warehouse prepared to restock, you look at the list and see that you need to restock Jerry's Cola Chips fully, you head over to the area and count that there are 26 in stock and only space for 35, you walk over to the deliveries area, how many chips are you going to grab? ", "You realize that 35 - 26 isn't the answer so you recollect your thoughts and try again: ", new String[] {"9"});
         sprainedAnkle = true;
-        //function();
+        restock1();
     }
 
     static void beside1() {
@@ -210,11 +210,106 @@ public class TheWarehouse {
     }
 
     static void wait1() {
-        int givenChoice = printQuestionWithChoices("You look back up at the bus and see it's being driven by a hooded figure, different from who you saw before. You cross the street, careful of the cars, and enter the front offices of the warehouse. The boss greets you and gives you your job, you enter the warehouse prepared to restock, you look at the list and see that you need to restock Jerry’s Cola Chips fully, you head over to the area and count that there are (random) in stock and only space for (random), you walk over to the deliveries area, how many chips are you going to grab? ", "You realize that 35 - 26 isn't the answer so you recollect your thoughts and try again: ", new String[] {"9"});
+        int givenChoice = printQuestionWithChoices("You look back up at the bus and see it's being driven by a hooded figure, different from who you saw before. You cross the street, careful of the cars, and enter the front offices of the warehouse. The boss greets you and gives you your job, you enter the warehouse prepared to restock, you look at the list and see that you need to restock Jerry’s Cola Chips fully, you head over to the area and count that there are 26 in stock and only space for 35, you walk over to the deliveries area, how many chips are you going to grab? ", "You realize that 35 - 26 isn't the answer so you recollect your thoughts and try again: ", new String[] {"9"});
         
-        //
+        restock1();
     }
 
+    static void restock1() {
+        int givenChoice = printQuestionWithChoices("You pick up 9 of the chip boxes and place all the boxes in each of the empty spaces, after doing so you head to your next job and start walking into the many hallways formed by the many pallet racks. The instructions say to go to aisle 201 but the aisles jump from 199 straight to 300, you look around but don't see where the missing 100 aisles could have gone. You decide to just go in a random direction, will you go right, left, or continue forward? (right, left, forward) ", "You have to go right, left, or forward! ", new String[] {"right", "left", "forward"});
+        
+        if (givenChoice == 0) {
+            right1();
+        } else if (givenChoice == 1) {
+            left1();
+        } else if (givenChoice == 2) {
+            forward1();
+        }
+    }
+
+    static void right1() {
+        int givenChoice = printQuestionWithChoices("You turn right and as you are walking look at the index for each of the certain areas, on the left is 198-E001, 198-E002, 198-E003… and on the right 199-E004, 199-E005, 199-E006… Eventually after walking down a little more the E turns to an F, then a G. You come to a conclusion that you are lost, but will you turn back or continue forward? (back, forward) ", "It's back or forward! ", new String[] {"back", "forward"});
+        
+        if (givenChoice == 0) {
+            back1();
+        } else if (givenChoice == 1) {
+            forward2();
+        }
+    }
+
+    static void forward2() {
+        death("You continue forward, suddenly the lights turn off and out of nowhere a figure jumps down from the top of the pallet racks and tears you open.", "Tip: Always go back never go a way that you don't know (THIS IS A LAZY ENDING) ");
+    }
+
+    static void back1() {
+        System.out.println("You turn around and start heading back from the way you came, the lights randomly turn off and you pull out a flashlight. You look around and see 2 eyes right behind you, the way you were headed before you turned around, you bolt forward.");
+        
+        RunningOut();
+    }
+
+    static void left1() {
+        int givenChoice = printQuestionWithChoices("You turn left and as you are walking look at the index for each of the certain areas, on the right is 198-D040, 198-D039, 198-D038… and on the left 199-D037, 199-D036, 199-D035… Eventually after walking down a little more the D turns to a C, then a B, finally an A. You see aisle 298 realizing you are on the completely opposite side of where you are supposed to be, so you start walking in the direction where the numbers go down but suddenly the lights turn off. You wait a minute and look around, you can't see anything. You pull out the flashlight and shine it opposite the way you were walking then the other way, you turn it off and see two eyes staring you down just like in the bus, you back towards the other direction and watch the eyes grow larger. You decide the only way to get out of a situation like this is to run away from it, will you run away from the way you came (left), run the way you came (right)? ", "Left or Right? ", new String[] {"left", "right"});
+        
+        if (givenChoice == 0) {
+            left2();
+        } else if (givenChoice == 1) {
+            right2();
+        }
+    }
+
+    static void left2() {
+        death("You starting running left and after a little you see a slight problem, there is a giant concrete wall ahead, with no place to run you throw boxes trying to get off the aisle, but it's too late, the thing grabs your leg and as you fight back you tears your left leg off, sinks its teeth into your right leg and your left crawling and yelling for help. No one can hear you. ", "Tip: It's always better to go the way you came, common sense also helps, for all we know it's NOT an infinite warehouse.");
+    }
+
+    static void right2() {
+        System.out.println("You sprint following the trail you took, running knocking over boxes to slow the figure down. ");
+        RunningOut();
+    }
+
+    static void foward1() {
+        int givenChoice = printQuestionWithChoices("The aisles are just increasing in number as you continue to step forward, you look around unknowing where you are, you decide you just walk back at this point since you are going nowhere. As you walk back the lights turn off, scared you turn your flashlight on and see two lights in your direction, you back up, going the direction you were originally going you bolt forward, you try to lose it turning left right left, so on. Eventually trying to lose it you lose your way and close towards the walls of the warehouse. Will you keep forward or try to juke it? (juke or forward) ", "No... Juke or Foward ", new String[] {"juke", "foward"});
+        
+        if (givenChoice == 0) {
+            if (sprainedAnkle) {
+                death("You turn back, attempting to juke it but due a striking pain in your ankle you collapse and it leaps on top of you digging its teeth into your neck, then tears your head off splattering blood all over the floor and the boxes. ", "Tip: Certain decisions can hurt you in the long term.");
+            } else {
+                System.out.println("You run towards it and as it leaps out to you, you dodge it, and start running back to the entrance. You run towards the office light in your hand.");
+                RunningOut();
+            }
+        } else if (givenChoice == 1) {
+            foward3();
+        }
+    }
+
+    static void foward3() {
+        death("You continue to run forward, and it continues to follow you. You end up in the corner trapped, it sends its nails into your chest, and forces its weight down, ripping out half of your insides along with it. ", "Tip: Common sense helps, it's best to try risky things then to accept fate!");
+    }
+
+    static void RunningOut() {
+        System.out.println("Eventually you sprint out the building, and it follows you at the same speed, maybe faster, you run across the street, and watch the figure close its gap between you and itself. Suddenly out of nowhere you feel yourself falling, you realize you tripped on the curb");
+        
+        if (donatedToHomless) {
+           
+            int givenChoice = printQuestionWithChoices(" But as you think you're done for, a homeless guy tackles the figure to the ground, will you help the man or leave him? (help, leave) ", "Help or Leave... ", new String[] {"help", "leave"});
+        
+            if (givenChoice == 0) {
+                System.out.println("Right before the homeless man was about to be ripped you throw your fist into its skull, you hear loud crunching and pull the homeless man aside, moments later you see the figure picking itself back up moments before its guts are splattered everywhere as a car rams straight into it. You both thank each other and go your separate ways. You are shaken but hopefully that the figure was actually dead.");
+            } else if (givenChoice == 1) {
+                System.out.println("You leave the man there to die, you watch him get torn into 2 pieces, you keep running though, he bought you time after all. You run several blocks before seeing an open convenience store. The cashier asks if you are alright, you look shaken up, you see the figure dashing towards the door and you yell at the cashier, he grabs a gun underneath the counter and pops the head off the figure. He seems also shaken, dropping the gun, he calls the cops and you keep your eyes on the body, afraid of where it might go or if it is still alive. ");
+            }
+        } else {
+            int givenChoice = printQuestionWithChoicesNoSecondChances("You know you have to either kick or swing at the figure with your hands, what will you do? (kick, punch)", new String[] {"kick", "punch"});
+        
+            if (givenChoice == 0) {
+                death("You attempt to kick it from there, but it's reflex's out speed yours and it bites down on your leg tearing it off, you attempt to flail but it holds you down and tears you limb from limb, leaving nothing but a torso gushing blood on the road.", "Tip: No way to predict this would happen, but doing other things to prepare for this moment will help in the future!");
+            } else if (givenChoice == 1) {
+                System.out.println("You throw a right hook, he wraps it mouth around your hand and begins to bite down, you punch it with your left hand right in the head, it lets go for a second and that's when you take the opportunity to use both your hands and throw its head to the ground. About to deal the last blow, you jump up and crush the figure's head with the force of your body. You know you're safe, now seeing the figure's brain splattered across the sidewalk. Walking away you keep looking back to see its corpse lying there. After about three times of looking back you notice the body is missing, you take off running home from there. ");
+            } else if (givenChoice == 2) {
+                death("You froze in place, it came down and snapped your neck and clawed its nails into your chest dragging them down slowly and eventually ripping your heart out.", "Tip: Certain situations require you to get a correct answer, failing to do so will result in your death!");
+            }
+        }
+    }
+    
     public static void main(String[] args) {
         // Startup
         int givenChoice = printQuestionWithChoices("Would you like fast text? (yes, no): ", "I said YES or NO to fast text (yes, no): ", new String[] {"yes", "no"});
