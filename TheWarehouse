@@ -1,0 +1,228 @@
+import java.util.Scanner;
+import java.util.List;
+import java.util.Arrays;
+
+public class TheWarehouse {
+    static boolean fastText = false;
+    static int money = 35;
+    static boolean donatedToHomless = false;
+    static boolean sprainedAnkle = false;
+
+    // Functions vvv
+    static void sleep(int miliseconds) {
+        try {
+            Thread.sleep(miliseconds);
+          } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+          }
+    }
+
+    static Boolean isint(String value) { // If all characters in string are digits then return true else false
+        boolean isInt = value.chars().allMatch(Character::isDigit); 
+        return isInt;
+    }
+
+    static int printQuestionWithChoices(String question, String afterIncorrectChoice, String[] choices) {
+        Scanner keyboard = new Scanner(System.in);
+
+        String[] words = question.split("");
+        for (int word = 0; word < words.length; word++) {
+            System.out.print(words[word]);
+            if (words[word].equals(".") || words[word].equals(",")) {
+                if (fastText) {
+                    sleep(25);
+                } else {
+                    sleep(250);
+                }
+            } else {
+                if (fastText) {
+                    sleep(5);
+                } else {
+                    sleep(25);
+                }
+            }
+        }
+
+        String choice = keyboard.nextLine().toLowerCase();
+        List choicesList = Arrays.asList(choices); // Convert Choices To List
+        while (!choicesList.contains(choice)) { // If the given choice is in the available choices
+            words = afterIncorrectChoice.split("");
+            for (int word = 0; word < words.length; word++) {
+                System.out.print(words[word]);
+                if (words[word].equals(".") || words[word].equals(",")) {
+                    if (fastText) {
+                        sleep(25);
+                    } else {
+                        sleep(250);
+                    }
+                } else {
+                    if (fastText) {
+                        sleep(5);
+                    } else {
+                        sleep(25);
+                    }
+                }
+            }
+            choice = keyboard.nextLine().toLowerCase();
+        }
+        System.out.println("");
+        return choicesList.indexOf(choice);
+    }
+
+    static int printQuestionWithChoicesNoSecondChances(String question, String[] choices) {
+        Scanner keyboard = new Scanner(System.in);
+
+        String[] words = question.split("");
+        for (int word = 0; word < words.length; word++) {
+            System.out.print(words[word]);
+            if (words[word].equals(".") || words[word].equals(",")) {
+                if (fastText) {
+                    sleep(25);
+                } else {
+                    sleep(250);
+                }
+            } else {
+                if (fastText) {
+                    sleep(5);
+                } else {
+                    sleep(25);
+                }
+            }
+        }
+
+        choice = keyboard.nextLine().toLowerCase();
+        List choicesList = Arrays.asList(choices); // Convert Choices To List
+        if (!choicesList.contains(choice)) { // If the given choice is in the available choices
+            System.out.println("");
+            return choicesList.size();
+        }
+
+        System.out.println("");
+        return choicesList.indexOf(choice);
+    }
+
+    static void death(String deathMessage, String deathTip) {
+        String[] words = deathMessage.split("");
+        for (int word = 0; word < words.length; word++) {
+            System.out.print(words[word]);
+            sleep(50);
+        }
+        System.out.println("");
+        words = "You Died...".split("");
+        for (int word = 0; word < words.length; word++) {
+            System.out.print(words[word]);
+            sleep(100);
+        }
+        System.out.println("");
+        words = deathTip.split("");
+        for (int word = 0; word < words.length; word++) {
+            System.out.print(words[word]);
+            sleep(100);
+        }
+    }
+
+    // Choices vvv
+
+    /* Example:
+     static void test() {
+        int givenChoice = printQuestionWithChoices("Give me A or B: ", "I SAID A OR B: ", new String[] {"a", "b"});
+        
+        if (givenChoice == 0) {
+            function();
+        } else if (givenChoice == 1) {
+            function();
+        }
+    }
+     */
+
+    static void starting() {
+        int givenChoice = printQuestionWithChoices("It's your first day of work, you wake up to an alarm after a nap you took after a rough day at school. You walk out of your dorm, downstairs and outside towards the bus stop on 26th and Morris, you see a man holding out a cap with a few dollars and coins in it, do you want to give him a dollar or walk past and continue to the bus stop? (donate, walk): ", "No, did you want to donate or walk past? (donate, walk): ", new String[] {"donate", "walk"});
+        
+        if (givenChoice == 0) {
+            give1();
+            money -= 1;
+        } else if (givenChoice == 1) {
+            walk1();
+        }
+    }
+
+    static void give1() {
+        int givenChoice = printQuestionWithChoices("You pull out your wallet and place a dollar in his cap, he thanks you and sets his cap down, you put away your wallet and continue towards the bus stop, you sit down and wait for the bus. The bus arrives and you step into the bus, and pay $2. You look around and there are only a few people in the bus, will you choose an empty spot or sit beside someone? (empty, beside): ", "Did you want to sit in an empty seat or beside someone? (empty, beside): ", new String[] {"empty", "beside"});
+        
+        donatedToHomless = true;
+        if (givenChoice == 0) {
+            empty1();
+        } else if (givenChoice == 1) {
+            beside1();
+        }
+    }
+
+    static void walk1() {
+        int givenChoice = printQuestionWithChoices("You walk past avoiding eye contact and sit down at the bus stop. The bus arrives and you step into the bus, and pay $2. You look around and there are only a few people in the bus, will you choose an empty spot or sit beside someone? (empty, beside): ", "Did you want to sit in an empty seat or beside someone? (empty, beside): ", new String[] {"empty", "beside"});
+        
+        money -= 2;
+        if (givenChoice == 0) {
+            empty1();
+        } else if (givenChoice == 1) {
+            beside1();
+        }
+    }
+
+    static void empty1() {
+        int givenChoice = printQuestionWithChoices("You find an empty seat and sit down, the bus starts driving forward and you look out the window. The next stop comes and what looks like a homeless person sits beside you, they stare at you intently, and you feel your soul being sucked from your body. You turn and look out the window, until several stops later where you get out, you thank the bus driver and are about to cross, the bus hasn't started yet, and you are running close on time, so will you cross the street now or wait? (cross, wait): ", "Are you going to cross now or wait? (cross, wait): ", new String[] {"cross", "wait"});
+        
+        if (givenChoice == 0) {
+            cross1();
+        } else if (givenChoice == 1) {
+            wait1();
+        }
+    }
+
+    static void cross1() {
+        int givenChoice = printQuestionWithChoicesNoSecondChances("You begin to cross the street but watch the world turn black, you turn your head to the left and see the bus, headlights off, accelerating towards you. Will you turn back or jump forward? (turn, jump): ", new String[] {"turn", "jump"});
+        
+        if (givenChoice == 0) {
+            turn1();
+        } else if (givenChoice == 1) {
+            jump1();
+        } else if (givenChoice == 1) {
+            standstill1();
+        }
+    }
+
+    static void jump1() {
+        death("You jump forwards and the bus zooms by behind you. You sigh in relief and notice it's getting brighter, looking to the left a shadowed figure drives the car, splattering your insides everywhere.", "Tip: Taking different paths will allow you to predict new ones!");
+    }
+
+    static void standstill1() {
+        death("Your brain fogged up as you stared at the moving bus, it slams right into you, sending you flying sevral feet, still conscious, the bus rolls over your head crushing your skull sending pieces of your brain everywhere", "Tip: Answer as many questions as you can correctly, not doing so will kill you!");
+    }
+
+    static void turn1() {
+        int givenChoice = printQuestionWithChoices("You turn your ankle and dart forward, tripping on the curb, spraining your ankle in the process. You look up at the bus and see that the bus driver was a hooded figure, different from who you saw before. You limp across the street, careful of the cars and enter the front offices of the warehouse. The boss tells you your late and gives you your job, you enter the warehouse prepared to restock, you look at the list and see that you need to restock Jerry's Cola Chips fully, you head over to the area and count that there are 26 in stock and only space for 35, you walk over to the deliveries area, how many chips are you going to grab? ", "You realize that 35 - 26 isn't the answer so you recollect your thoughts and try again: ", new String[] {"9"});
+        
+        //function();
+    }
+
+    static void beside1() {
+        System.out.print("You sit beside the only person that didn't set his stuff on the seat beside, he swears under his breath and looks out the window, the bus starts driving forward and you look down out the front window. The next stop comes and what looks like a homeless person sits across from a random person and stares them down intently, the person starts to feel uncomfortable and gets off at the next stop. Unknowingly the bus driver takes off forgetting that the person who got out put their bike on the front of the bus, and couldn't see them in the dark. The bike, slightly detached from the person removing it halfway, falls off after the bus gets started and we feel one small bump after another larger bump with the loud sound of crunching metal. The bus driver stops and gets out of the car and sees the crushed bike. He shrugs it off and continues to get back inside, you look outside and see the person who got out split in half with tire tracks running through their torso. You avert your eyes in disgust, the homeless man looks back at you and stares you down, you look at the man beside you who is still looking back at the corpse laid out on the road. A few stops later you get out of the bus, afraid to cross the street before the bus you wait a moment. ");
+        wait1();
+    }
+
+    static void wait1() {
+        int givenChoice = printQuestionWithChoices("You look back up at the bus and see it's being driven by a hooded figure, different from who you saw before. You cross the street, careful of the cars, and enter the front offices of the warehouse. The boss greets you and gives you your job, you enter the warehouse prepared to restock, you look at the list and see that you need to restock Jerry’s Cola Chips fully, you head over to the area and count that there are (random) in stock and only space for (random), you walk over to the deliveries area, how many chips are you going to grab? ", "You realize that 35 - 26 isn't the answer so you recollect your thoughts and try again: ", new String[] {"9"});
+        
+        //
+    }
+
+    public static void main(String[] args) {
+        // Startup
+        int givenChoice = printQuestionWithChoices("Would you like fast text? (yes, no): ", "I said YES or NO to fast text (yes, no): ", new String[] {"yes", "no"});
+
+        if (givenChoice == 0) {
+            fastText = true;
+        }
+
+        starting();
+    }
+}
