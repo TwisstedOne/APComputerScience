@@ -200,7 +200,7 @@ public class TheWarehouse {
 
     static void turn1() {
         int givenChoice = printQuestionWithChoices("You turn your ankle and dart forward, tripping on the curb, spraining your ankle in the process. You look up at the bus and see that the bus driver was a hooded figure, different from who you saw before. You limp across the street, careful of the cars and enter the front offices of the warehouse. The boss tells you your late and gives you your job, you enter the warehouse prepared to restock, you look at the list and see that you need to restock Jerry's Cola Chips fully, you head over to the area and count that there are 26 in stock and only space for 35, you walk over to the deliveries area, how many chips are you going to grab? ", "You realize that 35 - 26 isn't the answer so you recollect your thoughts and try again: ", new String[] {"9"});
-        
+        sprainedAnkle = true;
         //function();
     }
 
