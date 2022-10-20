@@ -1,0 +1,46 @@
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.Point;
+import java.awt.Toolkit;
+import java.awt.Image;
+import javax.swing.SwingUtilities;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+
+public class houseproject extends JPanel { 
+    public void createCloud(Graphics g) {
+
+    }
+
+    public void paintComponent(Graphics g) {
+        //drawline(start x, start y, end x, end y)
+        //setColor(Color.COLOR)
+        //drawString("what you want to say", starting x, start y)
+
+        final int width = getSize().width;
+        final int height = getSize().height;
+        System.out.println(width);
+
+        super.paintComponent(g);
+        
+
+
+
+
+
+    }
+
+    public static void main(String[] args) {
+        var panel = new houseproject();
+
+        var frame = new JFrame("House Project");
+
+        frame.setExtendedState(JFrame.MAXIMIZED_BOTH); 
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.getContentPane().add(panel, BorderLayout.CENTER);
+        frame.setVisible(true);
+    }
+}
+ 
