@@ -10,6 +10,9 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 public class houseproject extends JPanel { 
+
+    public int cloudPosition = 0;
+
     public void createCloud(Graphics g) {
 
     }
@@ -25,7 +28,7 @@ public class houseproject extends JPanel {
 
         super.paintComponent(g);
         
-
+        g.fillOval(100, 100, 0 + cloudPosition, 120)
 
 
 
@@ -33,14 +36,23 @@ public class houseproject extends JPanel {
     }
 
     public static void main(String[] args) {
-        var panel = new houseproject();
+        houseproject panel = new houseproject();
 
-        var frame = new JFrame("House Project");
+        JFrame frame = new JFrame("House Project");
 
         frame.setExtendedState(JFrame.MAXIMIZED_BOTH); 
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.getContentPane().add(panel, BorderLayout.CENTER);
         frame.setVisible(true);
+        
+        while (true) {
+            cloudposition += 1;
+            
+            sleep(100);
+            
+            panel.repaint();
+            
+        }
     }
 }
  
