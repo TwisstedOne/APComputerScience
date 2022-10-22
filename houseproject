@@ -1,3 +1,9 @@
+// Main
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Random;
+// Art
+import java.awt.AlphaComposite;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -5,54 +11,221 @@ import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.Image;
+import java.awt.Graphics2D;
 import javax.swing.SwingUtilities;
+
+import javafx.geometry.Dimension2D;
+import javafx.scene.shape.Polygon;
+
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 public class houseproject extends JPanel { 
+    // Constants
+    static final int updateLength = 1; // Smoother the faster
 
-    public int cloudPosition = 0;
+        // Orbit
+    static final int orbitSpeed = 2000; // Slower the more
+    static final int orbitSize = 900;
+    static final int orbitMax = (int)(Math.abs((int)(Math.cos(Math.PI) * orbitSize))/1.5);
 
-    public void createCloud(Graphics g) {
+        // Stars
+    static final int numberOfStars = 200;
 
+        // Clouds
+    static boolean cloudsOn = true; // Not Final because code likey
+    static final int numberOfClouds = 10;
+    static final int cloudThickness = 20;
+    static final int cloudSpreadX = 300;
+    static final int cloudSpreadY = 150;
+
+    // Positions
+    static int sunPositionX = orbitMax;
+    static int sunPositionY = orbitMax;
+    static int moonPositionX = 0;
+    static int moonPositionY = 0;
+    static int[][] starPositions = new int[3][numberOfStars + 1];
+    static int[][][] cloudPositions = new int[5][numberOfClouds + 1][cloudThickness + 1]; // [posX, posY, sizeX, sizeY, z][index][cloudIndex]
+    static double dt = 0;
+
+    static void sleep(int miliseconds) {
+        try {
+            Thread.sleep(miliseconds);
+          } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+          }
     }
+
+    static int randomInt(int lower) {
+        Random random = new Random();
+        return random.nextInt(lower);
+    }
+
+    public void setColor(Graphics graphics, int r, int g, int b) {
+        Color customColor = new Color(r, g, b);
+        graphics.setColor(customColor);
+    }
+
+    public int boundColor(int value) {
+        int bounded;
+        if (value < 0) {
+            bounded = 0;
+        } else if (value > 255) {
+            bounded = 255;
+        } else {
+            bounded = value;
+        }
+        return bounded;
+    }
+
+    public float bound(float value, float toBound) {
+        float bounded;
+        if (value < 0) {
+            bounded = 0;
+        } else if (value > toBound) {
+            bounded = toBound;
+        } else {
+            bounded = value;
+        }
+        return bounded;
+    }
+
+    public void drawClouds(Graphics2D g, int width) {
+        g.setColor(Color.WHITE);
+        AlphaComposite alcom = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, bound(-sunPositionY/10 * .001f, .5f));
+        g.setComposite(alcom);
+        for (int cloud = 0; cloud < numberOfClouds; cloud++) {
+            for (int icloud = 0; icloud < cloudThickness; icloud++) {
+                cloudPositions[0][cloud][icloud] += 1;
+                g.fillOval(cloudPositions[0][cloud][icloud], cloudPositions[1][cloud][icloud], cloudPositions[2][cloud][icloud], cloudPositions[3][cloud][icloud]);
+                if (cloudPositions[0][cloud][icloud] > width + 100) {
+                    cloudPositions[0][cloud][icloud] = -100;
+                }
+            }
+        }
+    }
+
+    public void fillPointByCenter(Graphics g, int x1, int y1, int x2, int y2, String filltype) {
+        int finalX1 = x1 - x2/2;
+        int finalY1 = y1 - y2/2;
+
+        if (filltype == "oval") {
+            g.fillOval(finalX1, finalY1, x2, y2);
+        } else if (filltype == "rect") {
+            g.fillRect(finalX1, finalY1, x2, y2);
+        }
+    }
+
+    public void drawTriangle(Graphics g, int x1, int x2, int x3, int y1, int y2, int y3) {
+        int[] xpoints = {x1, x2, x3};
+        int[] ypoints = {y1, y2, y3};
+        g.fillPolygon(xpoints, ypoints, 3);
+    }
+
 
     public void paintComponent(Graphics g) {
         //drawline(start x, start y, end x, end y)
         //setColor(Color.COLOR)
         //drawString("what you want to say", starting x, start y)
 
+        // Initalize Variables
         final int width = getSize().width;
         final int height = getSize().height;
-        System.out.println(width);
+        Graphics2D g2d = (Graphics2D) g.create();
 
-        super.paintComponent(g);
+        // Backgdrop
+    
+        setColor(g, boundColor(90/2 + -sunPositionY/(orbitMax/(90/2))), boundColor(185/2 + -sunPositionY/(orbitMax/(185/2))), boundColor(209/2 + -sunPositionY/(orbitMax/(209/2))));  // Background (numbers are the r, g, b values)
+        g.fillRect(0, 0, width, height);
         
-        g.fillOval(100, 100, 0 + cloudPosition, 120)
+        
+        // Sun, Moon and Stars
+        if (sunPositionY > 0) {
+            for (int star = 0; star < numberOfStars; star++) {
+                g2d.setColor(Color.WHITE);
+                AlphaComposite alcom = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, bound(sunPositionY/10 * Math.abs(starPositions[1][star] - height)/100 * .001f, 1));
+                g2d.setComposite(alcom);
+                fillPointByCenter(g2d, starPositions[0][star], starPositions[1][star],  starPositions[2][star], starPositions[2][star], "oval"); // Stars
+            }
+        }
+
+        for (int ring = 0; ring < 8; ring++) { // Ring
+            setColor(g2d, 240, 218, 19); // Sun Deeper Color
+            AlphaComposite alcom = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, ring *.1f);
+            g2d.setComposite(alcom);
+            fillPointByCenter(g2d, width/2 + sunPositionX, height + sunPositionY, 180 - ring * 10, 180 - ring * 10, "oval"); // Sun Outline
+        }
+        setColor(g, 255, 231, 13); // Sun Color
+        fillPointByCenter(g, width/2 + sunPositionX, height + sunPositionY, 100, 100, "oval"); // Sun
+
+        for (int ring = 0; ring < 4; ring++) { // Ring
+            setColor(g2d, 225, 225, 225); // Moon Darker Color
+            AlphaComposite alcom = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, ring *.1f);
+            g2d.setComposite(alcom);
+            fillPointByCenter(g2d, width/2 + moonPositionX, height + moonPositionY, 140 - ring * 10, 140 - ring * 10, "oval"); // Sun Outline
+        }
+        setColor(g, 255, 255, 255); // Moon Color
+        fillPointByCenter(g, width/2 + moonPositionX, height + moonPositionY, 100, 100, "oval"); // Moon
 
 
+        // Scenery
+        // Polymetric Background Generator:
+
+
+        // Clouds (Turn off to reduce lag)
+        if (sunPositionY < 0 && cloudsOn) {
+            drawClouds(g2d, width);
+        }
+
+        // Actual House
+            // Ground
+        //setColor(g, 41, 196, 10);
+        //fillPointByCenter(g, width/2, height - 20, width, 100, "rect");
 
 
     }
 
     public static void main(String[] args) {
-        houseproject panel = new houseproject();
+        final houseproject panel = new houseproject();
 
-        JFrame frame = new JFrame("House Project");
+        final JFrame frame = new JFrame("House Project");
 
         frame.setExtendedState(JFrame.MAXIMIZED_BOTH); 
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.getContentPane().add(panel, BorderLayout.CENTER);
         frame.setVisible(true);
-        
+
+        // Initalization Values
+        final int width = frame.getSize().width;
+        final int height = frame.getSize().height;
+
+            // Stars
+        for (int star = 0; star < numberOfStars; star++) { starPositions[0][star] = randomInt(width); }
+        for (int star = 0; star < numberOfStars; star++) { starPositions[1][star] = randomInt(height); }
+        for (int star = 0; star < numberOfStars; star++) { starPositions[2][star] = randomInt(10); }
+        for (int cloud = 0; cloud < numberOfClouds; cloud++) {
+            final int cloudOriginX = randomInt(width);
+            final int cloudOriginY = randomInt(30) + 50;
+            final int z = randomInt(5);
+            for (int icloud = 0; icloud < cloudThickness; icloud++) { cloudPositions[0][cloud][icloud] = cloudOriginX + randomInt(cloudSpreadX) - cloudSpreadX/2; }
+            for (int icloud = 0; icloud < cloudThickness; icloud++) { cloudPositions[1][cloud][icloud] = cloudOriginY + randomInt(cloudSpreadY) - cloudSpreadY/2; }
+            for (int icloud = 0; icloud < cloudThickness; icloud++) { cloudPositions[2][cloud][icloud] = 100 + randomInt(50); }
+            for (int icloud = 0; icloud < cloudThickness; icloud++) { cloudPositions[3][cloud][icloud] = 120 + randomInt(70); }
+            for (int icloud = 0; icloud < cloudThickness; icloud++) { cloudPositions[4][cloud][icloud] = z; }
+        }
+
         while (true) {
-            cloudposition += 1;
-            
-            sleep(100);
-            
+            // Update Delta Time
+            sleep(updateLength);
+            dt += 1;
+
+            // Values To Change (Animations Must Be Global)
+
+            sunPositionX = (int)(Math.sin((dt + Math.PI * orbitSize * 2)/orbitSpeed) * -orbitSize * 1.15);
+            sunPositionY = (int)(Math.cos((dt + Math.PI * orbitSize * 2)/orbitSpeed) * orbitSize);
+            moonPositionX = (int)(Math.sin(dt/orbitSpeed) * -orbitSize * 1.15);
+            moonPositionY = (int)(Math.cos(dt/orbitSpeed) * orbitSize);
             panel.repaint();
-            
         }
     }
 }
- 
