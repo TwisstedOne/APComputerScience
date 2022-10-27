@@ -111,7 +111,11 @@ public class houseproject extends JPanel { // I took to much time making this
         g.fillRect(x, y, (int)(32 * ratio), (int)(40 * ratio));// Outer Frame
         setColor(g, 51,54,36);
         g.fillRect(x + 2, y + 2, (int)(30 * ratio) + 1, (int)(38 * ratio) + 1);// Inner Frame
-        setColor(g, 48,114,113); // Make Lights Randommly Lit
+        if (sunPositionY < 0) {
+            setColor(g, 48,114,113);
+        } else {
+            setColor(g, 255, 242, 0);
+        }
         g.fillRect(x + 4, y + 4, (int)(14 * ratio), (int)(18 * ratio)); // Outer Windows
         g.fillRect(x + 6 + (int)(14 * ratio), y + 4, (int)(14 * ratio), (int)(18 * ratio));
         g.fillRect(x + 4, y + 6 + (int)(18 * ratio), (int)(14 * ratio), (int)(18 * ratio));
