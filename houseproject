@@ -233,8 +233,18 @@ public class houseproject extends JPanel { // I took to much time making this
         g.fillRect(800, 650, (int)(105 * ratio), (int)(6 * ratio)); // Roof Left X
         g.fillRect(800 - (int)(10 * ratio) + (int)(105 * ratio), 650 - (int)(10 * ratio), (int)(7 * ratio), (int)(84 * ratio)); // Roof Left Y 
 
+
+        // SMOKE
+        
+
         setColor(g, 218,55,35); // Roof Color
         easyPolygon(g, new int[] {835 - (int)(21 * ratio), 298, 835 + 10, 298 - (int)(30 * ratio), 835 + (int)(205 * ratio) - 10, 298 - (int)(30 * ratio), 835 + (int)(205 * ratio) + (int)(21 * ratio), 298}); // Roof Top
+        setColor(g, 221,150,46);
+        g.fillRect(835 + (int)(205 * ratio) - 80, 298 - (int)(30 * ratio) - 30, 60, 30);
+        g.fillRect(835 + (int)(205 * ratio) - 90, 298 - (int)(30 * ratio) - 45, 80, 15);
+        setColor(g, 155,112,59);
+        g.fillRect(835 + (int)(205 * ratio) - 80, 298 - (int)(30 * ratio) - 30, 60, 10);
+        
         setColor(g, 255,243,208); 
         g.fillRect(835 - (int)(21 * ratio), 298, (int)(205 * ratio) + 2 * (int)(21 * ratio), 5); // Top Fascia
         setColor(g, 218,55,35);
@@ -264,8 +274,17 @@ public class houseproject extends JPanel { // I took to much time making this
 
         drawOvalWindow(g, ratio, 1160, 475);
 
-        g.fillRect(920 + (int)(319/4 * ratio), height, width, height); // Door
-        // Colors: Knob = 95,30,0, Panel = 179,127,70, Door = 203,143,81, Frame = 78,59,33
+        setColor(g, 78,59,33);
+        fillPointByCenter(g, (800 + (int)(319/2 * ratio)), 725, 110, 170, "rect"); // Door Frame
+        setColor(g, 203,143,81);
+        fillPointByCenter(g, (800 + (int)(319/2 * ratio)), 729, 94, 161, "rect"); // Inner Door
+        setColor(g, 179,127,70);
+        fillPointByCenter(g, (800 + (int)(319/2 * ratio)), 725 - 170/4, 78, 152/4, "rect"); // Pannels
+        fillPointByCenter(g, (800 + (int)(319/2 * ratio)), 725 + 170/4, 78, 152/4, "rect");
+        setColor(g, 95,30,0);
+        fillPointByCenter(g, (765 + (int)(319/2 * ratio)), 725, 15, 15, "oval"); // Knob
+        setColor(g, 102, 107, 105);
+        easyPolygon(g, new int[] {(890 + (int)(319/4 * ratio)), 810 + (int)(10 * ratio), (890 + (int)(319/4 * ratio)) + (int)(239 * 3/8 * ratio), 810 + (int)(10 * ratio), (930 + (int)(319/4 * ratio)) + (int)(239 * 3/8 * ratio), height, 850 + (int)(319/4 * ratio), height});
     }
 
     public static void main(String[] args) {
