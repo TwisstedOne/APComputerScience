@@ -20,6 +20,8 @@ import javafx.scene.shape.Polygon;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
+import java.awt.MouseInfo;
+
 public class houseproject extends JPanel { // I took to much time making this
     // Constants
     static final int updateLength = 1; // Smoother the faster
@@ -33,8 +35,11 @@ public class houseproject extends JPanel { // I took to much time making this
         // Stars
     static final int numberOfStars = 200;
 
+        // Tree
+    static int treeAddition;
+
         // Clouds
-    static boolean cloudsOn = false; // Not Final because code no likey
+    static boolean cloudsOn = true; // Not Final because code no likey
     static final int numberOfClouds = 10;
     static final int cloudThickness = 20;
     static final int cloudSpreadX = 300;
@@ -104,6 +109,13 @@ public class houseproject extends JPanel { // I took to much time making this
                 }
             }
         }
+    }
+
+    public void drawSmoke(Graphics2D g, int x, int y) {
+        g.setColor(Color.WHITE);
+        AlphaComposite alcom = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, .5f);
+        g.setComposite(alcom);
+        g.fillOval(x + 20, y + 20, 20, 20);;
     }
 
     public void drawWindow(Graphics g, double ratio, int x, int y) {
@@ -183,6 +195,7 @@ public class houseproject extends JPanel { // I took to much time making this
         // Backgdrop
     
         setColor(g, boundColor(90/2 + -sunPositionY/(orbitMax/(90/2))), boundColor(185/2 + -sunPositionY/(orbitMax/(185/2))), boundColor(209/2 + -sunPositionY/(orbitMax/(209/2))));  // Background (numbers are the r, g, b values)
+       // setColor(g, randomInt(255), randomInt(255), randomInt(255));
         g.fillRect(0, 0, width, height);
         
         
@@ -241,10 +254,6 @@ public class houseproject extends JPanel { // I took to much time making this
         g.fillRect(800, 650, (int)(105 * ratio), (int)(6 * ratio)); // Roof Left X
         g.fillRect(800 - (int)(10 * ratio) + (int)(105 * ratio), 650 - (int)(10 * ratio), (int)(7 * ratio), (int)(84 * ratio)); // Roof Left Y 
 
-
-        // SMOKE
-        
-
         setColor(g, 218,55,35); // Roof Color
         easyPolygon(g, new int[] {835 - (int)(21 * ratio), 298, 835 + 10, 298 - (int)(30 * ratio), 835 + (int)(205 * ratio) - 10, 298 - (int)(30 * ratio), 835 + (int)(205 * ratio) + (int)(21 * ratio), 298}); // Roof Top
         setColor(g, 221,150,46);
@@ -293,6 +302,25 @@ public class houseproject extends JPanel { // I took to much time making this
         fillPointByCenter(g, (765 + (int)(319/2 * ratio)), 725, 15, 15, "oval"); // Knob
         setColor(g, 102, 107, 105);
         easyPolygon(g, new int[] {(890 + (int)(319/4 * ratio)), 810 + (int)(10 * ratio), (890 + (int)(319/4 * ratio)) + (int)(239 * 3/8 * ratio), 810 + (int)(10 * ratio), (930 + (int)(319/4 * ratio)) + (int)(239 * 3/8 * ratio), height, 850 + (int)(319/4 * ratio), height});
+
+        setColor(g, 97, 60, 26);
+        easyPolygon(g, new int[] {268, 870, 387, 802, 405, 499, 537, 494, 567, 812, 642, 840, 728, 853});
+        setColor(g, 0, 200, 0);
+        double[] treePointsX = {415.0, 348.0, 403.0, 446.0, 498.0, 581.0, 560.0};
+        double[] treePointsY = {562.0, 475.0, 415.0, 482.0, 393.0, 452.0, 534.0};
+        for (int i = 0; i < treePointsX.length; i++) {
+            fillPointByCenter(g, (int)treePointsX[i] + treeAddition, (int)treePointsY[i] + treeAddition, 200, 200, "oval");
+        }
+        setColor(g, 0, 255, 0);
+        for (int i = 0; i < treePointsX.length; i++) {
+            fillPointByCenter(g, (int)treePointsX[i]  + treeAddition, (int)treePointsY[i] + treeAddition, 190, 190, "oval");
+        }
+
+
+        
+        
+
+
     }
 
     public static void main(String[] args) {
@@ -330,12 +358,13 @@ public class houseproject extends JPanel { // I took to much time making this
             dt += 1;
 
             // Values To Change (Animations Must Be Global)
-
+            treeAddition = (int)(Math.sin(dt) * 10);
             sunPositionX = (int)(Math.sin((dt + Math.PI * orbitSize * 2)/orbitSpeed) * -orbitSize * 1.15);
             sunPositionY = (int)(Math.cos((dt + Math.PI * orbitSize * 2)/orbitSpeed) * orbitSize);
             moonPositionX = (int)(Math.sin(dt/orbitSpeed) * -orbitSize * 1.15);
             moonPositionY = (int)(Math.cos(dt/orbitSpeed) * orbitSize);
             panel.repaint();
+            System.out.println(MouseInfo.getPointerInfo().getLocation().getX() + ", " + MouseInfo.getPointerInfo().getLocation().getY());
         }
     }
 }
