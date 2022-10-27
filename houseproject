@@ -20,11 +20,12 @@ import javafx.scene.shape.Polygon;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-public class houseproject extends JPanel { 
+public class houseproject extends JPanel { // I took to much time making this
     // Constants
     static final int updateLength = 1; // Smoother the faster
 
         // Orbit
+    static boolean doDaylightCycle = true;
     static final int orbitSpeed = 2000; // Slower the more
     static final int orbitSize = 900;
     static final int orbitMax = (int)(Math.abs((int)(Math.cos(Math.PI) * orbitSize))/1.5);
@@ -33,7 +34,7 @@ public class houseproject extends JPanel {
     static final int numberOfStars = 200;
 
         // Clouds
-    static boolean cloudsOn = true; // Not Final because code likey
+    static boolean cloudsOn = false; // Not Final because code no likey
     static final int numberOfClouds = 10;
     static final int cloudThickness = 20;
     static final int cloudSpreadX = 300;
@@ -105,6 +106,30 @@ public class houseproject extends JPanel {
         }
     }
 
+    public void drawWindow(Graphics g, double ratio, int x, int y) {
+        setColor(g, 121,112,77);
+        g.fillRect(x, y, (int)(32 * ratio), (int)(40 * ratio));// Outer Frame
+        setColor(g, 51,54,36);
+        g.fillRect(x + 2, y + 2, (int)(30 * ratio) + 1, (int)(38 * ratio) + 1);// Inner Frame
+        setColor(g, 48,114,113); // Make Lights Randommly Lit
+        g.fillRect(x + 4, y + 4, (int)(14 * ratio), (int)(18 * ratio)); // Outer Windows
+        g.fillRect(x + 6 + (int)(14 * ratio), y + 4, (int)(14 * ratio), (int)(18 * ratio));
+        g.fillRect(x + 4, y + 6 + (int)(18 * ratio), (int)(14 * ratio), (int)(18 * ratio));
+        g.fillRect(x + 6 + (int)(14 * ratio), y + 6 + (int)(18 * ratio), (int)(14 * ratio), (int)(18 * ratio));
+    }
+
+    public void drawOvalWindow(Graphics g, double ratio, int x, int y) {
+        setColor(g, 121,112,77);
+        g.fillOval(x, y, (int)(30 * ratio), (int)(30 * ratio));// Outer Frame
+        setColor(g, 51,54,36);
+        g.fillOval(x + 2, y + 2, (int)(28 * ratio) + 1, (int)(28 * ratio) + 1);// Inner Frame
+        setColor(g, 48,114,113);
+        g.fillArc(x + 9, y + 5, (int)(24 * ratio), (int)(24 * ratio), 0, 90);
+        g.fillArc(x + 5, y + 5, (int)(24 * ratio), (int)(24 * ratio), 90, 90);
+        g.fillArc(x + 5, y + 9, (int)(24 * ratio), (int)(24 * ratio), 180, 90);
+        g.fillArc(x + 9, y + 9, (int)(24 * ratio), (int)(24 * ratio), 270, 90);
+    }
+
     public void fillPointByCenter(Graphics g, int x1, int y1, int x2, int y2, String filltype) {
         int finalX1 = x1 - x2/2;
         int finalY1 = y1 - y2/2;
@@ -116,10 +141,23 @@ public class houseproject extends JPanel {
         }
     }
 
-    public void drawTriangle(Graphics g, int x1, int x2, int x3, int y1, int y2, int y3) {
+    public void drawTriangle(Graphics g, int x1, int y1, int x2, int y2, int x3, int y3) {
         int[] xpoints = {x1, x2, x3};
         int[] ypoints = {y1, y2, y3};
         g.fillPolygon(xpoints, ypoints, 3);
+    }
+
+    public void easyPolygon(Graphics g, int[] points) { // Enter Points As Ordered Pairs
+        int[] xpoints = new int[points.length/2];
+        int[] ypoints = new int[points.length/2];
+        for (int point = 0; point < points.length; point++) { 
+            if (point%2 == 0) {
+                xpoints[point/2] = points[point];
+            }  else {
+                ypoints[point/2] = points[point];
+            }
+        }
+        g.fillPolygon(xpoints, ypoints, points.length/2);
     }
 
 
@@ -131,6 +169,7 @@ public class houseproject extends JPanel {
         // Initalize Variables
         final int width = getSize().width;
         final int height = getSize().height;
+        final double ratio = 2.5; // Built in 2.5
         Graphics2D g2d = (Graphics2D) g.create();
 
         // Backgdrop
@@ -169,7 +208,7 @@ public class houseproject extends JPanel {
 
 
         // Scenery
-        // Polymetric Background Generator:
+
 
 
         // Clouds (Turn off to reduce lag)
@@ -178,11 +217,55 @@ public class houseproject extends JPanel {
         }
 
         // Actual House
-            // Ground
-        //setColor(g, 41, 196, 10);
-        //fillPointByCenter(g, width/2, height - 20, width, 100, "rect");
+        // Ground
+        for (int i = 0; i < 100; i++) {
+            //setColor(g, 41 + i, 154 + i, 10 + i);
+            setColor(g, 141 - i, 244 - i, 110 - i);
+            fillPointByCenter(g, width/2, height - (i * 3), width, 4, "rect");
+        }
 
+        setColor(g, 209,227,182); // House Color
+        g.fillRect(835, 298, (int)(205 * ratio), (int)(215 * ratio)); // Main
+        g.fillRect(800, 650, (int)(215 * ratio), (int)(74 * ratio)); // Extension
 
+        setColor(g, 110,153,121); // Shadow Color, DYNAMIC SHADING?????
+        g.fillRect(835, 298, (int)(205 * ratio), (int)(9 * ratio)); // Top Roof
+        g.fillRect(800, 650, (int)(105 * ratio), (int)(6 * ratio)); // Roof Left X
+        g.fillRect(800 - (int)(10 * ratio) + (int)(105 * ratio), 650 - (int)(10 * ratio), (int)(7 * ratio), (int)(84 * ratio)); // Roof Left Y 
+
+        setColor(g, 218,55,35); // Roof Color
+        easyPolygon(g, new int[] {835 - (int)(21 * ratio), 298, 835 + 10, 298 - (int)(30 * ratio), 835 + (int)(205 * ratio) - 10, 298 - (int)(30 * ratio), 835 + (int)(205 * ratio) + (int)(21 * ratio), 298}); // Roof Top
+        setColor(g, 255,243,208); 
+        g.fillRect(835 - (int)(21 * ratio), 298, (int)(205 * ratio) + 2 * (int)(21 * ratio), 5); // Top Fascia
+        setColor(g, 218,55,35);
+        easyPolygon(g, new int[] {800 - (int)(10 * ratio), 650, 800 + (int)(45 * ratio), 650 - (int)(50 * ratio), 800 + (int)(45 * ratio) + (int)(95 * ratio), 650 - (int)(50 * ratio), 800 + (int)(95 * ratio), 650}); // Roof Left
+        setColor(g, 209,227,182);
+        g.fillRect(800 + (int)(100 * ratio), 650 - (int)(35 * ratio), (int)(119 * ratio), (int)(109 * ratio)); // Facade
+        drawTriangle(g, 800 + (int)(100 * ratio), 650 - (int)(35 * ratio), (800 + (int)(319/2 * ratio)), 650 - (int)(95 * ratio), 800 + (int)(219 * ratio), 650 - (int)(35 * ratio));
+        setColor(g, 141,31,12); // Roof Right Color
+        easyPolygon(g, new int[] {800 + (int)(90 * ratio), 650 - (int)(35 * ratio), (800 + (int)(319/2 * ratio)), 650 - (int)(105 * ratio), 800 + (int)(229 * ratio), 650 - (int)(35 * ratio), 800 + (int)(223 * ratio), 650 - (int)(35 * ratio), (800 + (int)(319/2 * ratio)), 650 - (int)(99 * ratio), 800 + (int)(96 * ratio), 650 - (int)(35 * ratio)}); // Roof Right
+        setColor(g, 255,243,208); 
+        easyPolygon(g, new int[] {800 + (int)(96 * ratio), 650 - (int)(35 * ratio), (800 + (int)(319/2 * ratio)), 650 - (int)(99 * ratio), 800 + (int)(223 * ratio), 650 - (int)(35 * ratio), 800 + (int)(220 * ratio), 650 - (int)(35 * ratio), (800 + (int)(319/2 * ratio)), 650 - (int)(94 * ratio), 800 + (int)(100 * ratio), 650 - (int)(35 * ratio)}); // Roof Right Fascia
+        setColor(g, 110,153,121);
+        easyPolygon(g, new int[] {800 + (int)(100 * ratio), 650 - (int)(35 * ratio), (800 + (int)(319/2 * ratio)), 650 - (int)(94 * ratio), 800 + (int)(219 * ratio), 650 - (int)(35 * ratio), 800 + (int)(219 * ratio), 650 - (int)(23 * ratio), (800 + (int)(319/2 * ratio)), 650 - (int)(82 * ratio), 800 + (int)(100 * ratio), 650 - (int)(23 * ratio)}); // Roof Right Shadow
+        g.fillRect((900 + (int)(319/4 * ratio)), 650, (int)(219 * 3/8 * ratio), (int)(74 * ratio));
+        g.fillArc((900 + (int)(319/4 * ratio)), 575, (int)(219 * 3/8 * ratio), 150, 0, 180);
+        setColor(g, 177,190,140);
+        g.fillRect((920 + (int)(319/4 * ratio)), 650, (int)(179 * 3/8 * ratio), (int)(74 * ratio));
+        g.fillArc((920 + (int)(319/4 * ratio)), 595, (int)(179 * 3/8 * ratio), 115, 0, 180);
+        setColor(g, 119,88,51);
+        g.fillRect((890 + (int)(319/4 * ratio)), 810, (int)(239 * 3/8 * ratio), (int)(10 * ratio));
+        
+        // Windows Function Origin (x, y)
+        drawWindow(g, ratio, 875, 360);
+        drawWindow(g, ratio, 995, 360);
+        drawWindow(g, ratio, 830, 700);
+        drawWindow(g, ratio, 940, 700);
+
+        drawOvalWindow(g, ratio, 1160, 475);
+
+        g.fillRect(920 + (int)(319/4 * ratio), height, width, height); // Door
+        // Colors: Knob = 95,30,0, Panel = 179,127,70, Door = 203,143,81, Frame = 78,59,33
     }
 
     public static void main(String[] args) {
@@ -214,7 +297,7 @@ public class houseproject extends JPanel {
             for (int icloud = 0; icloud < cloudThickness; icloud++) { cloudPositions[4][cloud][icloud] = z; }
         }
 
-        while (true) {
+        while (doDaylightCycle) {
             // Update Delta Time
             sleep(updateLength);
             dt += 1;
