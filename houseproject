@@ -123,7 +123,11 @@ public class houseproject extends JPanel { // I took to much time making this
         g.fillOval(x, y, (int)(30 * ratio), (int)(30 * ratio));// Outer Frame
         setColor(g, 51,54,36);
         g.fillOval(x + 2, y + 2, (int)(28 * ratio) + 1, (int)(28 * ratio) + 1);// Inner Frame
-        setColor(g, 48,114,113);
+        if (sunPositionY < 0) {
+            setColor(g, 48,114,113);
+        } else {
+            setColor(g, 255, 242, 0);
+        }
         g.fillArc(x + 9, y + 5, (int)(24 * ratio), (int)(24 * ratio), 0, 90);
         g.fillArc(x + 5, y + 5, (int)(24 * ratio), (int)(24 * ratio), 90, 90);
         g.fillArc(x + 5, y + 9, (int)(24 * ratio), (int)(24 * ratio), 180, 90);
