@@ -1,0 +1,132 @@
+// Main
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Random;
+// Art
+import java.awt.AlphaComposite;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.Point;
+import java.awt.Toolkit;
+import java.awt.Image;
+import java.awt.Graphics2D;
+import javax.swing.SwingUtilities;
+
+import javafx.geometry.Dimension2D;
+import javafx.scene.shape.Polygon;
+
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+
+import java.awt.MouseInfo;
+public class houseproject extends JPanel {
+    static void sleep(int miliseconds) {
+        try {
+            Thread.sleep(miliseconds);
+          } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+          }
+    }
+
+    static int randomInt(int lower) {
+        Random random = new Random();
+        return random.nextInt(lower);
+    }
+
+    public void setColor(Graphics graphics, int r, int g, int b) {
+        Color customColor = new Color(r, g, b);
+        graphics.setColor(customColor);
+    }
+
+    public int boundColor(int value) {
+        int bounded;
+        if (value < 0) {
+            bounded = 0;
+        } else if (value > 255) {
+            bounded = 255;
+        } else {
+            bounded = value;
+        }
+        return bounded;
+    }
+
+    public float bound(float value, float toBound) {
+        float bounded;
+        if (value < 0) {
+            bounded = 0;
+        } else if (value > toBound) {
+            bounded = toBound;
+        } else {
+            bounded = value;
+        }
+        return bounded;
+    }
+
+    public void fillPointByCenter(Graphics g, int x1, int y1, int x2, int y2, String filltype) {
+        int finalX1 = x1 - x2/2;
+        int finalY1 = y1 - y2/2;
+
+        if (filltype == "oval") {
+            g.fillOval(finalX1, finalY1, x2, y2);
+        } else if (filltype == "rect") {
+            g.fillRect(finalX1, finalY1, x2, y2);
+        }
+    }
+
+    public void drawTriangle(Graphics g, int x1, int y1, int x2, int y2, int x3, int y3) {
+        int[] xpoints = {x1, x2, x3};
+        int[] ypoints = {y1, y2, y3};
+        g.fillPolygon(xpoints, ypoints, 3);
+    }
+
+    public void easyPolygon(Graphics g, int[] points) { // Enter Points As Ordered Pairs
+        int[] xpoints = new int[points.length/2];
+        int[] ypoints = new int[points.length/2];
+        for (int point = 0; point < points.length; point++) { 
+            if (point%2 == 0) {
+                xpoints[point/2] = points[point];
+            }  else {
+                ypoints[point/2] = points[point];
+            }
+        }
+        g.fillPolygon(xpoints, ypoints, points.length/2);
+    }
+
+
+    public void paintComponent(Graphics g) {
+        // Init Values
+        final int gridSize = 25;
+        final int width = getSize().width;
+        final int height = getSize().height;
+        final int centerX = (int)((width/gridSize)/2);
+
+        setColor(g, 50, 50, 50);
+        g.fillRect(0, 0, width, height);
+        setColor(g, 35, 86, 168);
+        for (int x = 0; x < width/gridSize; x++) {
+            g.drawLine(x * gridSize, 0, x * gridSize, height);
+        }
+        for (int y = 0; y < width/gridSize; y++) {
+            g.drawLine(0, y * gridSize, width, y * gridSize);
+        }
+        setColor(g, 255, 0, 0);
+        fillPointByCenter(g, centerX, 100, 10, 10, "oval");
+    }
+
+    public static void main(String[] args) {
+        final houseproject panel = new houseproject();
+
+        final JFrame frame = new JFrame("House Project");
+
+        frame.setExtendedState(JFrame.MAXIMIZED_BOTH); 
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.getContentPane().add(panel, BorderLayout.CENTER);
+        frame.setVisible(true);
+
+        // Initalization Values
+        final int width = frame.getSize().width;
+        final int height = frame.getSize().height;
+    }
+}
