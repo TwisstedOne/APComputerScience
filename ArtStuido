@@ -14,10 +14,16 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.shape.Polygon;
 
 import java.awt.MouseInfo;
-public class mousetest extends JPanel implements MouseListener {  
+public class ArtStudio extends JPanel implements MouseListener {  
     static int mouseX;
     static int mouseY;
+    static int previousX;
+    static int previousY;
+    static boolean previouslyClicked;
     static boolean mouseDown = false;
+    
+    // Debounces
+    static boolean clearButton = false;
 
     static void sleep(int miliseconds) {
         try {
@@ -91,18 +97,44 @@ public class mousetest extends JPanel implements MouseListener {
     public void paintComponent(Graphics graphics) {
 
         final Graphics2D g = (Graphics2D) graphics.create();
+        final int width = getSize().width;
+        final int height = getSize().height;
 
-        setColor(g, 232, 198, 111);
+        setColor(g, 255, 0, 0);
+        g.fillRect(20, 20, 80, 80);
+        setColor(g, 0, 0, 0);
+        g.setFont(new Font("Rockwell Nova", Font.PLAIN, 18));
+        g.drawString("Clear", 40, 65);
+
+        setColor(g, 0, 0, 0);
         if (mouseDown) {
-            if (pointInBBOX(100, 100, 200, 200, mouseX, mouseY)) {
-                fillPointByCenter(g, mouseX, mouseY - 15, 20, 20, "oval");
+            g.setStroke(new BasicStroke(10));
+
+            g.draw(new Line2D.Float(
+                mouseX,
+                mouseY - 15,
+                previousX,
+                previousY - 15
+            ));
+
+            previousX = mouseX;
+            previousY = mouseY;
+
+            if (pointInBBOX(20, 20, 100, 100, mouseX, mouseY - 15) && clearButton) {
+                setColor(g, 255, 255, 255);
+                g.fillRect(0, 0, width, height);
+                clearButton = true;
             }
         }
+        clearButton = false;
     }
 
     public void mousePressed(MouseEvent e) {
         if (e.getButton() == MouseEvent.BUTTON1) {
+            previousX = mouseX;
+            previousY = mouseY;
             mouseDown = true;
+            clearButton = true;
         }
     }
     
@@ -112,12 +144,19 @@ public class mousetest extends JPanel implements MouseListener {
         }
     }
 
+    public void mouseClicked(MouseEvent e) {  }
+    
+    public void mouseEnded(MouseEvent e) { 
+        previouslyClicked = false;
+    }
+
     public void mouseExited(MouseEvent e) { }  
 
     public void mouseEntered(MouseEvent e) { } 
+
     
     public static void main(String[] args) {  
-        final mousetest panel = new mousetest();
+        final ArtStudio panel = new ArtStudio();
 
         final JFrame frame = new JFrame("Art Studio");
 
@@ -132,6 +171,10 @@ public class mousetest extends JPanel implements MouseListener {
             mouseY = (int) MouseInfo.getPointerInfo().getLocation().getY();
 
             panel.repaint();
+            previouslyClicked = true;
+
+            
+
         }
     }  
 }  
