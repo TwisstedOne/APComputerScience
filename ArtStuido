@@ -1,0 +1,137 @@
+// Main
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Random;
+// Art
+import java.awt.*;
+import java.awt.event.*;  
+import java.awt.geom.Line2D;
+import javax.swing.*;
+
+import javafx.geometry.Dimension2D;
+import javafx.scene.control.TextField;
+import javafx.scene.input.MouseButton;
+import javafx.scene.shape.Polygon;
+
+import java.awt.MouseInfo;
+public class mousetest extends JPanel implements MouseListener {  
+    static int mouseX;
+    static int mouseY;
+    static boolean mouseDown = false;
+
+    static void sleep(int miliseconds) {
+        try {
+            Thread.sleep(miliseconds);
+          } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+          }
+    }
+
+    static int randomInt(int lower) {
+        Random random = new Random();
+        return random.nextInt(lower);
+    }
+
+    public void setColor(Graphics graphics, int r, int g, int b) {
+        Color customColor = new Color(r, g, b);
+        graphics.setColor(customColor);
+    }
+
+    public int boundColor(int value) {
+        int bounded;
+        if (value < 0) {
+            bounded = 0;
+        } else if (value > 255) {
+            bounded = 255;
+        } else {
+            bounded = value;
+        }
+        return bounded;
+    }
+
+    public float bound(float value, float toBound) {
+        float bounded;
+        if (value < 0) {
+            bounded = 0;
+        } else if (value > toBound) {
+            bounded = toBound;
+        } else {
+            bounded = value;
+        }
+        return bounded;
+    }
+
+    public int customRound(double n, int r) {
+        return (int)(Math.floor(n / r + 0.5) * r);
+    }
+
+    public void fillPointByCenter(Graphics g, int x1, int y1, int x2, int y2, String filltype) {
+        int finalX1 = x1 - x2/2;
+        int finalY1 = y1 - y2/2;
+
+        if (filltype == "oval") {
+            g.fillOval(finalX1, finalY1, x2, y2);
+        } else if (filltype == "rect") {
+            g.fillRect(finalX1, finalY1, x2, y2);
+        }
+    }
+
+    public boolean pointInBBOX(int x1, int y1, int x2, int y2, int x, int y) { // Where x1 is less then x2 and y1 is less then y2
+        if (x > x1 && x < x2) { // Passed X Test
+            if (y > y1 && y < y2) { // Passed Y Test
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
+    }
+
+    public void paintComponent(Graphics graphics) {
+
+        final Graphics2D g = (Graphics2D) graphics.create();
+
+        setColor(g, 232, 198, 111);
+        if (mouseDown) {
+            if (pointInBBOX(100, 100, 200, 200, mouseX, mouseY)) {
+                fillPointByCenter(g, mouseX, mouseY - 15, 20, 20, "oval");
+            }
+        }
+    }
+
+    public void mousePressed(MouseEvent e) {
+        if (e.getButton() == MouseEvent.BUTTON1) {
+            mouseDown = true;
+        }
+    }
+    
+    public void mouseReleased(MouseEvent e) {
+        if (e.getButton() == MouseEvent.BUTTON1) {
+            mouseDown = false;
+        }
+    }
+
+    public void mouseExited(MouseEvent e) { }  
+
+    public void mouseEntered(MouseEvent e) { } 
+    
+    public static void main(String[] args) {  
+        final mousetest panel = new mousetest();
+
+        final JFrame frame = new JFrame("Art Studio");
+
+        frame.setExtendedState(JFrame.MAXIMIZED_BOTH); 
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.getContentPane().add(panel, BorderLayout.CENTER);
+        frame.setVisible(true);
+
+        frame.addMouseListener(panel);
+        while (true) {
+            mouseX = (int) MouseInfo.getPointerInfo().getLocation().getX();
+            mouseY = (int) MouseInfo.getPointerInfo().getLocation().getY();
+
+            panel.repaint();
+        }
+    }  
+}  
