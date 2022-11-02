@@ -3,25 +3,22 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
 // Art
-import java.awt.AlphaComposite;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Point;
-import java.awt.Toolkit;
-import java.awt.Image;
-import java.awt.Graphics2D;
-import javax.swing.SwingUtilities;
+import java.awt.*;
+import java.awt.event.*;  
+import java.awt.geom.Line2D;
+import javax.swing.*;
 
 import javafx.geometry.Dimension2D;
+import javafx.scene.control.TextField;
+import javafx.scene.input.MouseButton;
 import javafx.scene.shape.Polygon;
 
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-
 import java.awt.MouseInfo;
-public class houseproject extends JPanel {
+public class desmos extends JPanel implements MouseListener {
+    static int mouseX;
+    static int mouseY;
+    static boolean mouseDown = false;
+
     static void sleep(int miliseconds) {
         try {
             Thread.sleep(miliseconds);
@@ -64,6 +61,18 @@ public class houseproject extends JPanel {
         return bounded;
     }
 
+    public int customRound(double n, int r) {
+        return (int)(Math.floor(n / r + 0.5) * r);
+    }
+
+    public int returnSign(int n) {
+        if (n < 0) {
+            return -1;
+        } else {
+            return 1;      
+        }
+    }
+
     public void fillPointByCenter(Graphics g, int x1, int y1, int x2, int y2, String filltype) {
         int finalX1 = x1 - x2/2;
         int finalY1 = y1 - y2/2;
@@ -95,28 +104,112 @@ public class houseproject extends JPanel {
     }
 
 
-    public void paintComponent(Graphics g) {
+    public void paintComponent(Graphics graphics) {
         // Init Values
-        final int gridSize = 25;
+        final int precision = 10;
+        final int gridSize = 50; // Multiples Of 5
         final int width = getSize().width;
         final int height = getSize().height;
-        final int centerX = (int)((width/gridSize)/2);
+        final int halfX = customRound(width/2, gridSize);
+        final int halfY = customRound(height/2, gridSize);
+        final int numberOfXGrids = width/gridSize;
+        Graphics2D g = (Graphics2D) graphics.create();
 
-        setColor(g, 50, 50, 50);
-        g.fillRect(0, 0, width, height);
-        setColor(g, 35, 86, 168);
-        for (int x = 0; x < width/gridSize; x++) {
+
+        super.paintComponent(graphics);
+        // Equation: y = x^2
+
+        //setColor(g, 50, 50, 50);
+        //g.fillRect(0, 0, width, height);
+        //setColor(g, 35, 86, 168);
+        setColor(g, 158, 153, 153);
+        for (int x = 0; x < width/gridSize + 1; x++) {
+            g.setStroke(new BasicStroke(1));
             g.drawLine(x * gridSize, 0, x * gridSize, height);
         }
-        for (int y = 0; y < width/gridSize; y++) {
+        for (int y = 0; y < height/gridSize + 1; y++) {
+            g.setStroke(new BasicStroke(1));
             g.drawLine(0, y * gridSize, width, y * gridSize);
         }
+
+        for (int x = (-halfX/gridSize)/5; x < (halfX/gridSize)/5 + 1; x++) {
+            setColor(g, 0, 0, 0);
+            g.setStroke(new BasicStroke(1));
+            g.drawLine(x * gridSize * 5 + halfX, 0, x * gridSize * 5 + halfX, height);
+            g.setFont(new Font("Rockwell Nova", Font.PLAIN, 18));
+            if (returnSign(x) == 1) {
+                g.drawString(Integer.toString(x * 5), x * gridSize * 5 + halfX - (10 * Integer.toString(Math.abs(x * 5)).length() + 1), halfY + 20);
+            } else {
+                g.drawString(Integer.toString(x * 5), x * gridSize * 5 + halfX - (14 * Integer.toString(Math.abs(x * 5)).length() + 1), halfY + 20);
+            }
+        }
+
+        for (int y = (-halfY/gridSize)/5; y < (halfY/gridSize)/5 + 1; y++) {
+            setColor(g, 158, 153, 153);
+            g.setStroke(new BasicStroke(2));
+            g.drawLine(0, y * gridSize * 5 + halfY, width, y * gridSize * 5 + halfY);
+            if (y != 0) {
+                setColor(g, 0, 0, 0);
+                g.setFont(new Font("Rockwell Nova", Font.PLAIN, 18));
+                g.drawString(Integer.toString(-y * 5), halfX - 10 * Integer.toString(-y * 5).length(), y * gridSize * 5 + halfY - 2);
+            } 
+        }
+
+        setColor(g, 0, 0, 0);
+        g.setStroke(new BasicStroke(3));
+        g.drawLine(halfX, 0, halfX, height);
+
+        g.setStroke(new BasicStroke(3));
+        g.drawLine(0, halfY, width, halfY);
+
+
+        float points[] = new float[numberOfXGrids * precision];
+        for (float x = 0; x < numberOfXGrids * precision; x++) { // Get All Points Of Equation
+            float frealX = x/precision - numberOfXGrids/2;
+            double drealX = (double)(frealX);
+            float equation = (float) (drealX);  // y = x ^ 2
+
+            float y = -equation; // Flip Graph
+            points[(int)(x)] = y;
+        }
+
+
+        //System.out.println(width/gridSize * precision);
+        //System.out.println(numberOfXGrids * precision);
+
+        // Draw Equations
         setColor(g, 255, 0, 0);
-        fillPointByCenter(g, centerX, 100, 10, 10, "oval");
+        for (float x = 0; x < points.length - 1; x++) {
+            g.setStroke(new BasicStroke(5));
+
+            g.draw(new Line2D.Float(
+                x/precision * gridSize,
+                points[(int)(x)] * gridSize + halfY,
+                (x + 1)/precision * gridSize,
+                points[(int)(x) + 1] * gridSize + halfY
+            ));
+        }
     }
 
+    public void mousePressed(MouseEvent e) {
+        if (e.getButton() == MouseEvent.BUTTON1) {
+            mouseDown = true;
+        }
+    }
+    
+    public void mouseReleased(MouseEvent e) {
+        if (e.getButton() == MouseEvent.BUTTON1) {
+            mouseDown = false;
+        }
+    }
+
+    public void mouseExited(MouseEvent e) { }  
+
+    public void mouseEntered(MouseEvent e) { } 
+
+
     public static void main(String[] args) {
-        final houseproject panel = new houseproject();
+        final desmos panel = new desmos();
 
         final JFrame frame = new JFrame("House Project");
 
@@ -125,8 +218,12 @@ public class houseproject extends JPanel {
         frame.getContentPane().add(panel, BorderLayout.CENTER);
         frame.setVisible(true);
 
-        // Initalization Values
-        final int width = frame.getSize().width;
-        final int height = frame.getSize().height;
+        frame.addMouseListener(panel);
+        while (true) {
+            mouseX = (int) MouseInfo.getPointerInfo().getLocation().getX();
+            mouseY = (int) MouseInfo.getPointerInfo().getLocation().getY();
+
+            panel.repaint();
+        }
     }
 }
