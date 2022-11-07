@@ -1,0 +1,345 @@
+
+// Main
+import java.util.*;
+import java.util.List;
+// Art
+import java.awt.*;
+import java.awt.event.*;
+import java.awt.geom.Line2D;
+import javax.swing.*;
+
+import javafx.geometry.Dimension2D;
+import javafx.scene.control.TextField;
+import javafx.scene.input.MouseButton;
+import javafx.scene.shape.Polygon;
+
+public class raycast extends JPanel {
+    static String[] keysPressed;
+
+    final int mapX = 8;
+    final int mapY = 8;
+    final int mapS = 64;
+
+    int map[] = {
+            1, 1, 1, 1, 1, 1, 1, 1,
+            1, 0, 1, 0, 0, 0, 0, 1,
+            1, 0, 1, 0, 0, 0, 0, 1,
+            1, 0, 1, 0, 0, 0, 0, 1,
+            1, 0, 0, 0, 0, 0, 0, 1,
+            1, 0, 0, 0, 0, 1, 0, 1,
+            1, 0, 0, 0, 0, 0, 0, 1,
+            1, 1, 1, 1, 1, 1, 1, 1,
+    };
+
+    static void sleep(int miliseconds) {
+        try {
+            Thread.sleep(miliseconds);
+          } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+          }
+    }
+
+    void setColor(Graphics graphics, int r, int g, int b) {
+        Color customColor = new Color(r, g, b);
+        graphics.setColor(customColor);
+    }
+
+    void drawMap2D(Graphics2D g) {
+        int x, y, xo, yo;
+        for (y = 0; y < mapY; y++) {
+            for (x = 0; x < mapX; x++) {
+                if (map[y * mapX + x] == 1) {
+                    setColor(g, 255, 255, 255);
+                } else {
+                    setColor(g, 0, 0, 0);
+                }
+                xo = x * mapS;
+                yo = y * mapS;
+
+                g.fillRect(xo + 1, yo + 1, mapS - 1, mapS - 1);
+            }
+        }
+    }
+
+    static float degToRad(float a) {
+        return (float) (a * Math.PI / 180.0);
+    }
+
+    float FixAng(float a) {
+        if (a > 359) {
+            a -= 360;
+        }
+        if (a < 0) {
+            a += 360;
+        }
+        return a;
+    }
+
+    static float px, py, pdx, pdy, pa;
+
+    void drawPlayer2D(Graphics2D g) {
+        setColor(g, 255, 255, 0);
+        g.setStroke(new BasicStroke(8));
+        g.draw(new Line2D.Float(
+                px,
+                py,
+                px,
+                py
+        ));
+
+        g.setStroke(new BasicStroke(8));
+        g.draw(new Line2D.Float(
+                px,
+                py,
+                (float) (px + pdx * 20),
+                (float) (py + pdy * 20)
+        ));
+    }
+
+    void movement() {
+        for (int i = 0; i < keysPressed.length; i++) {
+            String key = keysPressed[i];
+
+            if (key.equals("a")) {
+                pa += (float) (.1 * fps);
+                pa = (float) FixAng(pa);
+                pdx = (float) Math.cos(degToRad((int) pa));
+                pdy = (float) -Math.sin(degToRad((int) pa));
+            }
+
+            if (key.equals("d")) {
+                pa -= (float) (.1 * fps);
+                pa = (float) FixAng(pa);
+                pdx = (float) Math.cos(degToRad((int) pa));
+                pdy = (float) -Math.sin(degToRad((int) pa));
+            }
+
+            
+            int xo = 0; // Collisons
+            if (pdx < 0) { xo = -20; } else { xo = 20; }
+            int yo = 0;
+            if (pdx < 0) { yo = -20; } else { yo = 20; }
+            int ipx = (int) px/64, ipx_add_xo = ((int) px + xo)/64, ipx_sub_xo = ((int) px - xo) / 64;
+            int ipy = (int) px/64, ipy_add_yo = ((int) py + yo)/64, ipy_sub_yo = ((int) py - yo) / 64;
+            
+            if (key.equals("w")) {
+                if (map[ipy * mapX + ipx_add_xo] == 0) { px += (float) (pdx * .1 * fps); }
+                if (map[ipy_add_yo * mapX + ipx] == 0) { py += (float) (pdy * .1 * fps); }
+            } 
+            if (key.equals("s")) {
+                px -= (float) (pdx * .1 * fps);
+                py -= (float) (pdy * .1 * fps);
+            }
+        }
+    }
+
+    float distance(float ax, float ay, float bx, float by, float ang) { 
+        return (float) (Math.cos(degToRad(ang))*(bx-ax) - Math.sin(degToRad(ang))*(by-ay));
+    }
+
+    void drawRays2D(Graphics2D g) {
+        int r = 0, mx = 0, my = 0, mp = 0, dof = 0;
+        float vx = 0, vy = 0, rx = 0, ry = 0, ra = 0, xo = 0, yo = 0, disV = 0, disH = 0;
+
+        ra = (float) FixAng((int) (pa) + 30);
+
+        for (r = 0; r < 60; r++) {
+            dof = 0;
+            disV = 100000;
+            float Tan = (float) Math.tan(degToRad((int) ra));
+            if (Math.cos(degToRad((int) ra)) > 0.001) {
+                rx = (float) (((int) px >> 6) << 6) + 64;
+                ry = (float) ((px - rx) * Tan + py);
+                xo = (float) 64;
+                yo = (float) (-xo * Tan);
+            } // looking left
+            else if (Math.cos(degToRad((int) ra)) < -0.001) {
+                rx = (float) ((((int) px >> 6) << 6) - 0.0001);
+                ry = (float) ((px - rx) * Tan + py);
+                xo = (float) -64;
+                yo = (float) (-xo * Tan);
+            } // looking right
+            else {
+                rx = (float) px;
+                ry = (float) py;
+                dof = 8;
+            } // looking up or down. no hit
+
+            while (dof < 8) {
+                mx = (int) (rx) >> 6;
+                my = (int) (ry) >> 6;
+                mp = my * mapX + mx;
+                if (mp > 0 && mp < mapX * mapY && map[mp] == 1) {
+                    dof = 8;
+                    disV = (float) (Math.cos(degToRad((int) ra)) * (rx - px) - Math.sin(degToRad((int) ra)) * (ry - py));
+                } // hit
+                else {
+                    rx += xo;
+                    ry += yo;
+                    dof += 1;
+                } // check next horizontal
+            }
+            vx = rx;
+            vy = ry;
+
+            dof = 0;
+            disH = 100000;
+            Tan = (float) (1.0 / Tan);
+            if (Math.sin(degToRad((int) ra)) > 0.001) {
+                ry = (float) ((((int) py >> 6) << 6) - 0.0001);
+                rx = (float) ((py - ry) * Tan + px);
+                yo = (float) -64;
+                xo = (float) (-yo * Tan);
+            } // looking up
+            else if (Math.sin(degToRad((int) ra)) < -0.001) {
+                ry = (float) ((((int) py >> 6) << 6) + 64);
+                rx = (float) ((py - ry) * Tan + px);
+                yo = 64;
+                xo = (float) (-yo * Tan);
+            } // looking down
+            else {
+                rx = px;
+                ry = py;
+                dof = 8;
+            } // looking straight left or right
+
+            while (dof < 8) {
+                mx = (int) (rx) >> 6;
+                my = (int) (ry) >> 6;
+                mp = my * mapX + mx;
+                if (mp > 0 && mp < mapX * mapY && map[mp] == 1) {
+                    dof = 8;
+                    disH = (float) (Math.cos(degToRad((int) ra)) * (rx - px) - Math.sin(degToRad((int) ra)) * (ry - py));
+                } // hit
+                else {
+                    rx += xo;
+                    ry += yo;
+                    dof += 1;
+                } // check next horizontal
+            }
+
+            setColor(g, 0, 204, 0);
+            if (disV < disH) {
+                rx = vx;
+                ry = vy;
+                disH = disV;
+                setColor(g, 0, 153, 0);
+            } // horizontal hit first
+
+            g.setStroke(new BasicStroke(2));
+            g.draw(new Line2D.Float(
+                px,
+                py,
+                rx,
+                ry
+            ));
+
+            int ca = (int) FixAng(pa - ra);
+            disH = (float) (disH * Math.cos(degToRad(ca))); // fix fisheye
+            int lineH = (int) ((mapS * 320) / (disH));
+            if (lineH > 320) {
+                lineH = 320;
+            } // line height and limit
+            int lineOff = 160 - (lineH >> 1); // line offset
+
+            g.setStroke(new BasicStroke(8));
+            g.draw(new Line2D.Float(
+                (float) (r * 8 + 530),
+                (float) (lineOff),
+                (float) (r * 8 + 530),
+                (float) (lineOff + lineH)
+            ));
+
+            ra = (float) FixAng((int) (ra) - 1); // go to next ray
+        }
+    }
+
+    public void paintComponent(Graphics graphics) {
+        final Graphics2D g = (Graphics2D) graphics.create();
+        final int width = getSize().width;
+        final int height = getSize().height;
+
+        // Set Color
+        setColor(g, 110, 104, 103);
+        g.fillRect(0, 0, width, height);
+
+        drawMap2D(g);
+        movement();
+        drawPlayer2D(g);
+        drawRays2D(g);
+    }
+
+    public raycast() {
+        KeyListener listener = new KeyListener()
+        {
+            public void keyTyped(KeyEvent e) { }
+
+            public void keyPressed(KeyEvent e) { 
+                String keyPressed = KeyEvent.getKeyText(e.getKeyCode()).toLowerCase();
+
+                for (int i = 0; i < keysPressed.length; i++) {
+                    if (keysPressed[i].equals("")) {
+                        boolean contains = false;
+                        for (int j = 0; j < keysPressed.length; j++) {
+                            if (keysPressed[j].equals(keyPressed)) {
+                                contains = true;
+                                break;
+                            }
+                        }
+                        if (!contains) {
+                            keysPressed[i] = keyPressed;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            public void keyReleased(KeyEvent e) { 
+                String keyPressed = KeyEvent.getKeyText(e.getKeyCode()).toLowerCase();
+
+                for (int i = 0; i < keysPressed.length; i++) {
+                    if (keysPressed[i].equals(keyPressed)) {
+                        keysPressed[i] = "";
+                        break;
+                    }
+                }
+            }
+        };
+        addKeyListener(listener);
+		setFocusable(true);
+    }
+
+    static long start, finish;
+    static float fps;
+    public static void main(String[] args) {
+        final raycast panel = new raycast();
+
+        final JFrame frame = new JFrame("Raycast");
+
+        frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.getContentPane().add(panel, BorderLayout.CENTER);
+        frame.setVisible(true);
+
+        // Initalize Variables
+        px = 150;
+        py = 400;
+        pa = 90;
+        pdx = (float) Math.cos(degToRad((int) pa));
+        pdy = (float) -Math.sin(degToRad((int) pa)); 
+
+        keysPressed = new String[10];
+        for (int i = 0; i < keysPressed.length; i++) {
+            keysPressed[i] = "";
+        }
+
+        while (true) {
+            //start = System.nanoTime(); // For Fps Movment
+            
+            panel.repaint();
+            //finish = System.nanoTime();
+            //System.out.println(fps);
+            fps = 1; //(finish - start)/100000f;
+        }
+    }
+}
