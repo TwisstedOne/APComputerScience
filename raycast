@@ -16,20 +16,26 @@ import javafx.scene.shape.Polygon;
 public class raycast extends JPanel {
     static String[] keysPressed;
 
-    final int mapX = 8;
-    final int mapY = 8;
+    final int mapX = 12;
+    final int mapY = 12;
     final int mapS = 64;
 
     int map[] = {
-            1, 1, 1, 1, 1, 1, 1, 1,
-            1, 0, 1, 0, 0, 0, 0, 1,
-            1, 0, 1, 0, 0, 0, 0, 1,
-            1, 0, 1, 0, 0, 0, 0, 1,
-            1, 0, 0, 0, 0, 0, 0, 1,
-            1, 0, 0, 0, 0, 1, 0, 1,
-            1, 0, 0, 0, 0, 0, 0, 1,
-            1, 1, 1, 1, 1, 1, 1, 1,
+            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+            1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+            1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+            1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+            1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1,
+            1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1,
+            1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1,
+            1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1,
+            1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1,
+            1, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 1,
+            1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
     };
+
+    static int FOV = 12;
 
     static void sleep(int miliseconds) {
         try {
@@ -96,7 +102,7 @@ public class raycast extends JPanel {
         ));
     }
 
-    void movement() {
+    void keyboard() {
         for (int i = 0; i < keysPressed.length; i++) {
             String key = keysPressed[i];
 
@@ -105,6 +111,7 @@ public class raycast extends JPanel {
                 pa = (float) FixAng(pa);
                 pdx = (float) Math.cos(degToRad((int) pa));
                 pdy = (float) -Math.sin(degToRad((int) pa));
+                continue;
             }
 
             if (key.equals("d")) {
@@ -112,6 +119,7 @@ public class raycast extends JPanel {
                 pa = (float) FixAng(pa);
                 pdx = (float) Math.cos(degToRad((int) pa));
                 pdy = (float) -Math.sin(degToRad((int) pa));
+                continue;
             }
 
             
@@ -123,12 +131,28 @@ public class raycast extends JPanel {
             int ipy = (int) px/64, ipy_add_yo = ((int) py + yo)/64, ipy_sub_yo = ((int) py - yo) / 64;
             
             if (key.equals("w")) {
-                if (map[ipy * mapX + ipx_add_xo] == 0) { px += (float) (pdx * .1 * fps); }
-                if (map[ipy_add_yo * mapX + ipx] == 0) { py += (float) (pdy * .1 * fps); }
+                px += (float) (pdx * .1 * fps);
+                py += (float) (pdy * .1 * fps);
+                //if (map[ipy * mapX + ipx_add_xo] == 0) { px += (float) (pdx * .1 * fps); }
+                //if (map[ipy_add_yo * mapX + ipx] == 0) { py += (float) (pdy * .1 * fps); }
+                continue;
             } 
             if (key.equals("s")) {
                 px -= (float) (pdx * .1 * fps);
                 py -= (float) (pdy * .1 * fps);
+                continue;
+            }
+
+            if (key.equals("minus")) {
+                if (FOV - 1 > 1) {
+                    FOV -= 1;
+                }
+                continue;
+            }
+
+            if (key.equals("equals")) {
+                FOV += 1;
+                continue;
             }
         }
     }
@@ -162,15 +186,15 @@ public class raycast extends JPanel {
             else {
                 rx = (float) px;
                 ry = (float) py;
-                dof = 8;
+                dof = 15;
             } // looking up or down. no hit
 
-            while (dof < 8) {
+            while (dof < 15) {
                 mx = (int) (rx) >> 6;
                 my = (int) (ry) >> 6;
                 mp = my * mapX + mx;
                 if (mp > 0 && mp < mapX * mapY && map[mp] == 1) {
-                    dof = 8;
+                    dof = 15;
                     disV = (float) (Math.cos(degToRad((int) ra)) * (rx - px) - Math.sin(degToRad((int) ra)) * (ry - py));
                 } // hit
                 else {
@@ -200,15 +224,15 @@ public class raycast extends JPanel {
             else {
                 rx = px;
                 ry = py;
-                dof = 8;
+                dof = 15;
             } // looking straight left or right
 
-            while (dof < 8) {
+            while (dof < 15) {
                 mx = (int) (rx) >> 6;
                 my = (int) (ry) >> 6;
                 mp = my * mapX + mx;
                 if (mp > 0 && mp < mapX * mapY && map[mp] == 1) {
-                    dof = 8;
+                    dof = 15;
                     disH = (float) (Math.cos(degToRad((int) ra)) * (rx - px) - Math.sin(degToRad((int) ra)) * (ry - py));
                 } // hit
                 else {
@@ -218,12 +242,12 @@ public class raycast extends JPanel {
                 } // check next horizontal
             }
 
-            setColor(g, 0, 204, 0);
+            setColor(g, 204, 204, 0);
             if (disV < disH) {
                 rx = vx;
                 ry = vy;
                 disH = disV;
-                setColor(g, 0, 153, 0);
+                setColor(g, 153, 153, 0);
             } // horizontal hit first
 
             g.setStroke(new BasicStroke(2));
@@ -242,11 +266,11 @@ public class raycast extends JPanel {
             } // line height and limit
             int lineOff = 160 - (lineH >> 1); // line offset
 
-            g.setStroke(new BasicStroke(8));
+            g.setStroke(new BasicStroke(FOV));
             g.draw(new Line2D.Float(
-                (float) (r * 8 + 530),
+                (float) (r * FOV + 1000),
                 (float) (lineOff),
-                (float) (r * 8 + 530),
+                (float) (r * FOV + 1000),
                 (float) (lineOff + lineH)
             ));
 
@@ -264,7 +288,7 @@ public class raycast extends JPanel {
         g.fillRect(0, 0, width, height);
 
         drawMap2D(g);
-        movement();
+        keyboard();
         drawPlayer2D(g);
         drawRays2D(g);
     }
@@ -339,7 +363,7 @@ public class raycast extends JPanel {
             panel.repaint();
             //finish = System.nanoTime();
             //System.out.println(fps);
-            fps = 1; //(finish - start)/100000f;
+            fps = 10; //(finish - start)/100000f;
         }
     }
 }
