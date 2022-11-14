@@ -7,7 +7,14 @@ import java.awt.event.*;
 import java.awt.geom.*;
 import javax.swing.*;
 
+class sprite {
+    int type; // static, key, enemy
+    int state; // on or off
+    int map; // texture
+    int x, y, z; // position
 
+    void createStprite(int itype, int istate, int imap, int ix, int iy, int iz) { type = itype; state = istate; map = imap; x = ix; y = iy; z = iz; }
+}
 
 public class raycastC extends JPanel {
     static String[] keysPressed;
@@ -17,21 +24,23 @@ public class raycastC extends JPanel {
     final int mapS = 64;
     final int maxDepth = 16;
 
+    static sprite[] sprites;
+
     int mapW[] = {
         1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-        1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-        1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-        1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-        1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-        1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-        1, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-        1, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1,
-        1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-        1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-        1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
         1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
         1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
         1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1,
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1,
+        1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1,
+        1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1,
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 1,
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 1,
         1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
         1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
     };
@@ -77,7 +86,10 @@ public class raycastC extends JPanel {
     static int[] Wall_Textures;
     static int[] Floor_Textures;
     static int[] Ceiling_Textures;
+    static int[] Sprite_Textures;
     static int[] Skybox;
+
+    int[] depth = new int[120];
 
     static int FOV = 15;
 
@@ -189,6 +201,7 @@ public class raycastC extends JPanel {
             if (lineH > ScrenHeight) { ty_off= (lineH - ScrenHeight)/2.0; lineH = ScrenHeight; }                            //line height and limit
             int lineOff = ScrenHeight/2 - (lineH >> 1);                                               //line offset
 
+            depth[r] = (int) disH;
             //---draw walls---
             int y;
             double ty = ty_off * ty_step; //+hmt*32;
@@ -240,6 +253,51 @@ public class raycastC extends JPanel {
         }
     }
 
+    void drawSprites(Graphics2D g) {
+        int x, y;
+        //if(px < sprites[0].x + 30 && px >sprites[0].x-30 && py < sprites[0].y + 30 && py > sprites[0].y - 30){ sprites[0].state = 0;} //pick up key 	
+        //if(px < sprites[3].x + 30 && px >sprites[3].x-30 && py < sprites[3].y + 30 && py > sprites[3].y - 30){ gameState = 4;} //enemy kills
+
+        if (sprites[0].x > px) { sprites[0].x -= 1; }
+        if (sprites[0].x < px) { sprites[0].x += 1; }
+
+
+        double sx = sprites[0].x - px; //temp double variables
+        double sy = sprites[0].y - py;
+        double sz = sprites[0].z;
+
+        double CS = Math.cos(degToRad(pa)), SN = Math.sin(degToRad(pa)); //rotate around origin
+        double a = sy * CS + sx * SN; 
+        double b = sx * CS - sy * SN; 
+        sx = a; sy = b;
+
+        sx = (sx * 108.0/sy) + (120/2); //convert to screen x,y
+        sy = (sz * 108.0/sy) + ( 80/2);
+
+        int scale = (int) (32 * 80/b);   //scale sprite based on distance
+        if (scale < 0) { scale = 0; } if (scale > 120) { scale = 120; }  
+
+        //texture
+        double t_x = 0, t_y = 31, t_x_step = 31.5/(double) scale, t_y_step = 32.0/(double) scale;
+
+        for (x = (int) (sx-scale/2); x < sx + scale/2; x++) {
+            t_y = 31;
+            for (y = 0; y < scale; y++) {
+                if (sprites[0].state == 1 && x  > 0 && x < 120 && b < depth[x]) {
+                    int pixel = ((int) t_y * 32 + (int) t_x) * 3 + (sprites[0].map * 32 * 32 * 3);
+                    int red   = Sprite_Textures[pixel+0];
+                    int green = Sprite_Textures[pixel+1];
+                    int blue  = Sprite_Textures[pixel+2];
+                    if (red != 255 && green != 0 && blue != 255) { //dont draw if purple
+                        g.setStroke(new BasicStroke(FOV)); setColor(g, red, green, blue); g.draw(new Line2D.Double(x * FOV, sy * FOV - y * FOV, x * FOV, sy * FOV - y * FOV));
+                    }
+                    t_y -= t_y_step; if (t_y < 0) { t_y = 0; }
+                }
+            }
+            t_x+=t_x_step;
+        }
+    }
+
     void drawSky(Graphics2D g) {
         int x, y;
         for (y = 0; y < 40; y++) {
@@ -265,7 +323,8 @@ public class raycastC extends JPanel {
 
         keyboard();
         //drawSky(g);
-        drawRays2D(g); 
+        drawRays2D(g);
+        drawSprites(g);
     }
 
     public raycastC() {
@@ -309,9 +368,16 @@ public class raycastC extends JPanel {
     static double fps;
 
     public static void main(String[] args) {
+        final raycastC panel = new raycastC();
+        final JFrame frame = new JFrame("Raycast");
         
         // Initalize Variables
         px = 150; py = 400; pa = 90; pdx = Math.cos(degToRad(pa)); pdy = -Math.sin(degToRad(pa));
+
+        sprites = new sprite[4];
+        for (int i = 0; i < sprites.length; i++) { sprites[i] = new sprite(); }
+
+        sprites[0].createStprite(3, 1, 0, (int) (4.5 * 64), 6 * 64, 0);
 
         keysPressed = new String[10];
         for (int i = 0; i < keysPressed.length; i++) { keysPressed[i] = ""; }
@@ -320,10 +386,8 @@ public class raycastC extends JPanel {
         Wall_Textures = textureGetter("WallTextures");
         Floor_Textures = textureGetter("FloorTextures");
         Ceiling_Textures = textureGetter("RoofTextures");
+        Sprite_Textures = textureGetter("SpriteTextures");
         Skybox = textureGetter("skybox");
-
-        final raycastC panel = new raycastC();
-        final JFrame frame = new JFrame("Raycast");
 
         frame.setExtendedState(JFrame.MAXIMIZED_BOTH); frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); frame.getContentPane().add(panel, BorderLayout.CENTER); frame.setVisible(true);
 
