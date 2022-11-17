@@ -1,0 +1,222 @@
+// Main
+import java.io.*;
+import java.util.*;
+// Art
+import java.awt.*;
+import java.awt.event.*;
+import java.awt.geom.*;
+import javax.swing.*;
+
+class state {
+    int eState = 1;
+    String searchingDirectory = System.getProperty("user.home"); // Get The Users "Home" Mine At Home Is "C:\Users\scott"
+}
+
+class bbox {
+    int x, y; // x & y pos
+    int w, h; // width & height
+
+    void init(int ix, int iy, int iw, int ih) { x = ix; y = iy; w = iw; h = ih; }
+
+    boolean inBox(int px, int py) {
+        if (px > x && px < x + w) { /* Passed X Test */ if (py > y && py < y + h) { /* Passed Y Test */ return true; } else { return false; } } else { return false; }
+    }
+} 
+
+class button {
+    int x, y; // x & y pos
+    int w, h; // width & height
+    int r, g, b;
+    String text;
+    boolean enabled = false;
+
+    private void setColor(Graphics graphics, int r, int g, int b) { Color customColor = new Color(r, g, b); graphics.setColor(customColor); }
+
+    void drawButton(Graphics2D g2d) {
+        if (enabled) {
+            setColor(g2d, r, g, b);
+            g2d.drawRect(x, y, w, h);
+            setColor(g2d, 255, 255, 255);
+            g2d.setFont(new Font("Monospaced", Font.PLAIN, 20)); 
+            g2d.drawString(text, x, y + 20);
+        }
+    }
+
+
+}
+
+class window {
+    int x, y; // x & y pos
+    int w, h; // width & height
+    int ox, oy; // original x and y after click
+    int windowState = 1; // 0 = closed, 1 = open, 2 = being dragged
+    int usableButtons = 1;
+    String name;
+    boolean scrollable = true;
+    bbox barbox = new bbox();    
+    bbox closebox = new bbox();
+    button[] buttons;
+
+    final int yoff = 30;
+
+    public window() {
+        buttons = new button[50];
+        for (int i = 0; i < buttons.length; i++) { buttons[i] = new button(); }
+    }
+
+    private void setColor(Graphics graphics, int r, int g, int b) { Color customColor = new Color(r, g, b); graphics.setColor(customColor); }
+
+    private void drawWindow(Graphics2D g) {
+        // Top: Same H, W Dependent
+        setColor(g, 243, 243, 243);
+        g.fillRect(x, y, w, 25);
+        
+        // Window
+        setColor(g, 0, 0, 0);
+        g.fillRect(x, y + 25, w, h);
+        g.setFont(new Font("Monospaced", Font.PLAIN, 20)); 
+        g.drawString(name, x + 10, y + 20);
+
+        // Close Button
+        setColor(g, 255, 16, 34);
+        g.fillRect(x + w - 40, y, 40, 25);
+        setColor(g, 255, 255, 255);
+        g.setFont(new Font("Monospaced", Font.BOLD, 20)); 
+        g.drawString("X", x + w - 25, y + 20);
+
+        for (int i = 0; i < buttons.length; i++) {
+            buttons[i].drawButton(g);
+        }
+        
+        // Scroll
+        if (scrollable == true) {
+            setColor(g, 220, 220, 220);
+            g.fillRect(x + w - 15, y + 25, 15, h);
+
+            setColor(g, 100, 100, 100);
+            g.fillRect(x + w - 14, y + 26, 13, (int) ((int) (h/50) * 50 - 50)/usableButtons);
+        }
+    }
+
+    private void dragWindow(boolean md, int omx, int omy, int sw, int sh) {
+        int mx = (int) MouseInfo.getPointerInfo().getLocation().getX(), my = (int) MouseInfo.getPointerInfo().getLocation().getY() - yoff;
+        if (md && windowState == 2) {
+            x = ox + mx - omx;
+            y = oy + my - omy;
+            if (x < 0)  { x = 0; }
+            if (y < 0)  { y = 0; }
+            if (x + w > sw) { x = sw - w; }
+            if (y + h > sh) { y = sh - h; }
+        } else {
+            windowState = 1;
+        }
+    }
+ 
+    boolean initialClick() {
+        int mx = (int) MouseInfo.getPointerInfo().getLocation().getX(), my = (int) MouseInfo.getPointerInfo().getLocation().getY() - yoff;
+        if (barbox.inBox(mx, my) && windowState == 1) {
+            ox = x; oy = y;
+            windowState = 2;
+            return false;
+        } else if (closebox.inBox(mx, my) && windowState == 1) {
+            return true;
+        }
+        return false;
+    }
+
+    void update(Graphics2D g, boolean md, int omx, int omy, int sw, int sh) {
+        barbox.init(x, y, w - 40, 25);
+        closebox.init(x + w - 40, y, 40, 25);
+        drawWindow(g);
+        dragWindow(md, omx, omy, sw, sh);
+    }
+}
+
+public class PictureEditor extends JPanel {
+    // Variables
+    state EditorState = new state();
+    window[] windows;
+
+    boolean mouseDown = false;
+    boolean previousMouseState = false;
+    int mouseOriginX = 0, mouseOriginY = 0;
+
+    final int yoff = 30;
+
+    // Functions
+    void setColor(Graphics graphics, int r, int g, int b) { Color customColor = new Color(r, g, b); graphics.setColor(customColor); }
+
+    String[] getFilesFromDirectory(String directory) { File directoryPath = new File(directory); String[] contents = directoryPath.list(); return contents; }
+
+    public void paintComponent(Graphics graphics) {
+        final Graphics2D g = (Graphics2D) graphics.create();
+        final int width = getSize().width;
+        final int height = getSize().height;
+
+        // Create Background (& clear)
+        setColor(g, 50, 50, 50);
+        g.fillRect(0, 0, width, height);
+
+        // Min Sized Window
+        this.windows[0].update(g, mouseDown, mouseOriginX, mouseOriginY, width, height);
+        if (previousMouseState == false && mouseDown == true) { previousMouseState = true; if (this.windows[0].initialClick()) { this.EditorState.eState = 0; }; } else { previousMouseState = false; }
+        
+        String[] testDirect = getFilesFromDirectory(this.EditorState.searchingDirectory);
+        this.windows[0].usableButtons = testDirect.length;
+        for (int i = 0; i < testDirect.length; i++) {
+            if (50 * (i + 1) < this.windows[0].h) {
+                button temp = this.windows[0].buttons[i];
+                temp.r = 90; temp.g = 90; temp.b = 90; 
+                temp.x = this.windows[0].x;
+                temp.y = this.windows[0].y + 50 * i + 25;
+                temp.w = this.windows[0].w - 15;
+                temp.h = 50;
+                temp.text = testDirect[i];
+                temp.enabled = true;
+            }
+        }
+
+    }
+
+    public PictureEditor() {
+        MouseListener mouselistener = new MouseListener() {
+            public void mouseClicked(MouseEvent e) { }
+
+            public void mouseEntered(MouseEvent e) { }
+
+            public void mouseExited(MouseEvent e) { }
+
+            public void mousePressed(MouseEvent e) { mouseDown = true; mouseOriginX = (int) MouseInfo.getPointerInfo().getLocation().getX(); mouseOriginY = (int) MouseInfo.getPointerInfo().getLocation().getY() - yoff; }
+
+            public void mouseReleased(MouseEvent e) { mouseDown = false; }
+        };
+        MouseWheelListener mouseWheelListener = new MouseWheelListener() {
+            public void mouseWheelMoved(MouseWheelEvent e) { 
+                
+            }
+        };
+        addMouseWheelListener(mouseWheelListener);
+        addMouseListener(mouselistener);
+        setFocusable(true);
+    }
+
+    public static void main(String[] args) {
+        final PictureEditor panel = new PictureEditor();
+        final JFrame frame = new JFrame("Picture Editor");
+
+        // Init Here
+        panel.windows = new window[10];
+        for (int i = 0; i < panel.windows.length; i++) { panel.windows[i] = new window(); }
+
+        panel.windows[0].x = 200; panel.windows[0].y = 200; panel.windows[0].w = 500; panel.windows[0].h = 500; panel.windows[0].name = "File Selecter";
+
+        frame.setExtendedState(JFrame.MAXIMIZED_BOTH); 
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); 
+        frame.getContentPane().add(panel, BorderLayout.CENTER); 
+        frame.setVisible(true);
+
+        System.out.println(System.getProperty("user.home"));
+
+        while (true) { panel.repaint(); if (panel.EditorState.eState == 0) { frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING)); }}
+    }
+}
