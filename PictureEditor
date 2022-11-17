@@ -51,10 +51,13 @@ class window {
     int ox, oy; // original x and y after click
     int windowState = 1; // 0 = closed, 1 = open, 2 = being dragged
     int usableButtons = 1;
+    double scrollPos = 0;
+    int wheelHeight = 1;
     String name;
     boolean scrollable = true;
     bbox barbox = new bbox();    
     bbox closebox = new bbox();
+    bbox windowbox = new bbox();
     button[] buttons;
 
     final int yoff = 30;
@@ -94,7 +97,7 @@ class window {
             g.fillRect(x + w - 15, y + 25, 15, h);
 
             setColor(g, 100, 100, 100);
-            g.fillRect(x + w - 14, y + 26, 13, (int) ((int) (h/50) * 50 - 50)/usableButtons);
+            g.fillRect(x + w - 14, y + 26 + (int) scrollPos * 20, 13, wheelHeight);
         }
     }
 
@@ -111,6 +114,15 @@ class window {
             windowState = 1;
         }
     }
+
+    void scrollWindow(int su) {
+        int mx = (int) MouseInfo.getPointerInfo().getLocation().getX(), my = (int) MouseInfo.getPointerInfo().getLocation().getY() - yoff;
+        if (windowbox.inBox(mx, my)) {
+            scrollPos += su/2;
+            if (scrollPos < 0)               { scrollPos = 0; }
+            if (scrollPos > h) { scrollPos = h - wheelHeight; }
+        }
+    }
  
     boolean initialClick() {
         int mx = (int) MouseInfo.getPointerInfo().getLocation().getX(), my = (int) MouseInfo.getPointerInfo().getLocation().getY() - yoff;
@@ -124,11 +136,13 @@ class window {
         return false;
     }
 
-    void update(Graphics2D g, boolean md, int omx, int omy, int sw, int sh) {
+    void update(Graphics2D g, boolean md, int omx, int omy, int sw, int sh, int su) {
         barbox.init(x, y, w - 40, 25);
         closebox.init(x + w - 40, y, 40, 25);
+        windowbox.init(x, y + 25, w, h);
         drawWindow(g);
         dragWindow(md, omx, omy, sw, sh);
+        if (scrollable) { scrollWindow(su); }
     }
 }
 
@@ -140,6 +154,7 @@ public class PictureEditor extends JPanel {
     boolean mouseDown = false;
     boolean previousMouseState = false;
     int mouseOriginX = 0, mouseOriginY = 0;
+    int scrollUnits = 0;
 
     final int yoff = 30;
 
@@ -158,22 +173,32 @@ public class PictureEditor extends JPanel {
         g.fillRect(0, 0, width, height);
 
         // Min Sized Window
-        this.windows[0].update(g, mouseDown, mouseOriginX, mouseOriginY, width, height);
+        this.windows[0].update(g, mouseDown, mouseOriginX, mouseOriginY, width, height, scrollUnits);
         if (previousMouseState == false && mouseDown == true) { previousMouseState = true; if (this.windows[0].initialClick()) { this.EditorState.eState = 0; }; } else { previousMouseState = false; }
-        
+        if (scrollUnits != 0) { scrollUnits = 0; }
+
         String[] testDirect = getFilesFromDirectory(this.EditorState.searchingDirectory);
         this.windows[0].usableButtons = testDirect.length;
+        this.windows[0].wheelHeight = (testDirect.length/(this.windows[0].h/50)) * 50; if (this.windows[0].wheelHeight < 0) { this.windows[0].wheelHeight = this.windows[0].h - 2; }
         for (int i = 0; i < testDirect.length; i++) {
-            if (50 * (i + 1) < this.windows[0].h) {
-                button temp = this.windows[0].buttons[i];
+            button temp = this.windows[0].buttons[i];
                 temp.r = 90; temp.g = 90; temp.b = 90; 
                 temp.x = this.windows[0].x;
-                temp.y = this.windows[0].y + 50 * i + 25;
+                temp.y = this.windows[0].y + 50 * i + 25 - (int) (this.windows[0].scrollPos * 50);
                 temp.w = this.windows[0].w - 15;
                 temp.h = 50;
                 temp.text = testDirect[i];
                 temp.enabled = true;
-            }
+            /*if (50 * (i + this.windows[0].scrollPos + 1) < this.windows[0].h) {
+                button temp = this.windows[0].buttons[i + this.windows[0].scrollPos];
+                temp.r = 90; temp.g = 90; temp.b = 90; 
+                temp.x = this.windows[0].x;
+                temp.y = this.windows[0].y + 50 * (i + this.windows[0].scrollPos) + 25;
+                temp.w = this.windows[0].w - 15;
+                temp.h = 50;
+                temp.text = testDirect[i + this.windows[0].scrollPos];
+                temp.enabled = true;
+            }*/
         }
 
     }
@@ -192,7 +217,7 @@ public class PictureEditor extends JPanel {
         };
         MouseWheelListener mouseWheelListener = new MouseWheelListener() {
             public void mouseWheelMoved(MouseWheelEvent e) { 
-                
+                scrollUnits = e.getUnitsToScroll();   
             }
         };
         addMouseWheelListener(mouseWheelListener);
